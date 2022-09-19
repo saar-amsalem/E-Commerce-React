@@ -1,0 +1,23 @@
+.form button {
+    flex: 1;
+  border: none;
+  background-color: teal;
+  color: white;
+}
+
+.form {
+    width: 50%;
+  height: 40px;
+  background-color: #fcf5f5;
+  display: flex;
+  justify-content: space-between;
+  border: 1px solid lightgray;
+  border: none;
+  flex: 8;
+}
+
+.form .msg-alert p{
+  width: 200px;
+  padding-left: 5px;
+}
+
