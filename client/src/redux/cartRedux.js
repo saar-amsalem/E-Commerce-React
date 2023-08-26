@@ -22,7 +22,6 @@ const cartSlice = createSlice({
       }
       else {//else if object is not in products[] will push him inside
         state.quantity += action.payload.quantity;
-        
         state.products.push(action.payload);
         state.total += action.payload.price * action.payload.quantity;
       }
@@ -40,12 +39,10 @@ const cartSlice = createSlice({
           return obj._id !== action.payload._id
          }))
       }
-      else{
+      else {
        state.products.filter(obj=> { // else will less obj.quantity by 1
         return obj.desc === action.payload.desc
-       }).forEach((item)=>item.quantity--)
-       
-       
+       }).forEach((item)=>item.quantity--)       
       }
       state.total -= action.payload.price;
     },

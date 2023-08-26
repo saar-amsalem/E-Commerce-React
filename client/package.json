@@ -14,7 +14,7 @@
     "axios": "^0.21.4",
     "common-tags": "^1.8.2",
     "install": "^0.13.0",
-    "npm": "^8.18.0",
+    "isexe": "^3.1.1",
     "react": "^17.0.2",
     "react-burger-menu": "^3.0.8",
     "react-dom": "^17.0.2",

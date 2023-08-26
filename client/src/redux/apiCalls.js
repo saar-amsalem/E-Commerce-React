@@ -176,6 +176,17 @@ export const getProducts = async () => {
   } catch (error) {}
 };
 
+export const getAllCategories = async () => {
+  try {
+    console.log("in api calls getAllCategories !");
+    const res = await axios.get(`http://localhost:3030/api/products/categories`);
+    console.log(res.data);
+    return res.data
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 
 //----------------------------------Wishlist-api-------------------------------------------------//
 

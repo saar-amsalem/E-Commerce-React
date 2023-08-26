@@ -1,6 +1,3 @@
-
-
-
 export const data = 
 {
     page_id: "112462398230877",

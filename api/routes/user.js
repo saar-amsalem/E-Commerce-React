@@ -7,7 +7,7 @@ const {
 const CryptoJS = require("crypto-js");
 
 const router = require("express").Router();
-const client = require("mailchimp-marketing");
+const client = require("@mailchimp/mailchimp_marketing");
 
 //UPDATE
 router.put("/:id", verifyTokenAndAuthorization, async (req, res) => {

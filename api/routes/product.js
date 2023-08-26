@@ -9,9 +9,9 @@ const router = require("express").Router();
 
 //CREATE
 
-router.post("/", verifyTokenAndAdmin, async (req, res) => {
+router.post("/", async (req, res) => {
+  console.log(req.body);
   const newProduct = new Product(req.body);
-
   try {
     const savedProduct = await newProduct.save();
     res.status(200).json(savedProduct);
@@ -80,5 +80,14 @@ router.get("/", async (req, res) => {
     res.status(500).json(err);
   }
 });
+
+router.get("/categories", async (req,res) => {
+  try {
+    const categories = await Product.distinct('categories');
+    res.status(200).json(categories)
+  } catch (error) {
+    console.log(error);
+  }
+})
 
 module.exports = router;

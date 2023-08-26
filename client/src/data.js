@@ -5,7 +5,6 @@ import dress from "../src/imageOfPro/dress.jpeg";
 import coat1 from "../src/imageOfPro/zara-sale-2022-jeans.webp";
 import coat2 from "../src/imageOfPro/coat.webp";
 import man from "../src/imageOfPro/men.webp";
-import { useState } from "react";
 
 export const sliderItems = [
   {

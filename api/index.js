@@ -17,26 +17,6 @@ app.use(cors());
 
 const server = http.createServer(app);
 
-//const { createServer } = require("http");
-// const { Server } = require("socket.io");
-
-//const httpServer = createServer(app);
-// const io = new Server(httpServer, { cors: { origin: "*", credentials: true } });
-
-// io.on("connection", (socket) => {
-//   socket.on("display_user", (data) => {
-//     console.log("User " + data + " is connected !" + socket.id);
-//     addNewUser(data);
-//   });
-//   socket.on("disconnect_user", (data) => {
-//     console.log("User " + data.id + " is disconnected !");
-//     removeUser(socket.id);
-//   });
-
-//   socket.on("admin_conn", () => {
-//     io.emit("admin_get", onlineUsers);
-//   });
-// });
 
 mongoose
   .connect(process.env.MONGO_URL)
@@ -85,12 +65,11 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log("User Disconnected", socket.id);
+    socket.disconnect()
   });
 });
 
-/*server.listen(3001, () => {
-  console.log("SERVER RUNNING");
-});*/
+
 
 server.listen(process.env.PORT || 5000, () => {
   console.log(`Backend server is running on Port: ${process.env.PORT}`);
