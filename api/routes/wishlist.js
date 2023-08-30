@@ -1,4 +1,4 @@
-const Wishlist = require("../models/Wishlist")
+const wishlistController = require("../controllers/wishlistController")
 
 const {
     verifyToken,
@@ -10,72 +10,40 @@ const router = require("express").Router();
 //CREATE
 
 router.post("/",verifyToken, async (req,res)=> {
-    const newWishlist = new Wishlist(req.body);
-  try {
-    const savedWishlist = await newWishlist.save();
-    res.status(200).json(savedWishlist);
-  } catch (err) {
-    console.log(err);
-    res.status(500).json(err);
-  }
+    const response = await wishlistController.createWishList(req.body)
+    if (response.err) {
+      console.log(response.body);
+    }
+    res.status(response.status).json(response)
 })
 
 //UPDATE 
 
-router.post("/find/:id",verifyTokenAndAuthorization, async (req,res)=> {
-  console.log(req.body);
-    try {
-        const updated = await Wishlist.findOneAndUpdate( 
-            {userId: req.params.id},
-            {
-              $push: {products: req.body},
-            },
-            { new: true }
-            );
-            console.log(updated);
-        res.status(200).json(updated)
-       
-    } catch (error) {
-        console.log(error);
-        res.status(500).json(error)
+router.post("/add/:id",verifyTokenAndAuthorization, async (req,res)=> {
+  const response = await wishlistController.updateWishlistByUserId(req.params.id, req.body)
+    if (response.err) {
+      console.log(response.body);
     }
-    
+    res.status(response.status).json(response)
 })
 
 //DELETE 
 
-router.post("/delete/:id", async (req,res)=> {
-    try {
-      console.log(req.body);
-      console.log("in delete");
-        const updated = await Wishlist.findOneAndUpdate( 
-            {userId: req.params.id},
-            {
-              $pull: {'products': req.body},
-            },
-            );
-        console.log(updated);    
-        res.status(200).json(updated)
-    } catch (error) {
-        console.log(error);
-        res.status(500).json(error)
-    }
-    
+router.delete("/delete/:id", async (req,res)=> {
+  const response = await wishlistController.deleteFromWishlist(req.params.id, req.body)
+  if (response.err) {
+    console.log(response.body);
+  }
+  res.status(response.status).json(response)
 })
 
 //FIND BY USER ID
-
-
 router.get("/find/:id",verifyTokenAndAuthorization,async (req,res)=> {
-    try {
-       const list = await Wishlist.findOne({userId: req.params.id})
-       console.log(list);
-       res.status(200).json(list)
-    } catch (error) {
-        console.log(error);
-        res.status(500).json(error)
-    }
+  const response = await wishlistController.getWishlistByUserId(req.params.id)
+  if (response.err) {
+    console.log(response.body);
+  }
+  res.status(response.status).json(response)
 })
-  
 
 module.exports = router

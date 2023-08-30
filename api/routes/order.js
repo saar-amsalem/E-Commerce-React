@@ -1,51 +1,37 @@
-const Order = require("../models/Order");
 const {
   verifyToken,
   verifyTokenAndAuthorization,
   verifyTokenAndAdmin,
 } = require("./verifyToken");
-
 const router = require("express").Router();
+const orderController = require("../controllers/orderController")
 
 //CREATE
 
 router.post("/", verifyToken, async (req, res) => {
-  const newOrder = new Order(req.body);
-  console.log(req.body);
-  try {
-    const savedOrder = await newOrder.save();
-    res.status(200).json(savedOrder);
-  } catch (err) {
-    console.log(err);
-    res.status(500).json(err);
+  const response = await orderController.createOrder(req.body)
+  if (response.err) {
+    console.log(response.err);
   }
+  res.status(response.status).json(response)
 });
 
 //UPDATE
 router.put("/:id", verifyTokenAndAdmin, async (req, res) => {
-  try {
-    console.log("in server !!!s");
-    const updatedOrder = await Order.findByIdAndUpdate(
-      req.params.id,
-      {
-        $set: req.body,
-      },
-      { new: true }
-    );
-    res.status(200).json(updatedOrder);
-  } catch (err) {
-    res.status(500).json(err);
+  const response = await orderController.updatedOrder(req.params.id,req.body)
+  if (response.err) {
+    console.log(response.err);
   }
+  res.status(response.status).json(response)
 });
 
 //DELETE
 router.delete("/:id", verifyTokenAndAdmin, async (req, res) => {
-  try {
-    await Order.findByIdAndDelete(req.params.id);
-    res.status(200).json("Order has been deleted...");
-  } catch (err) {
-    res.status(500).json(err);
+  const response = await orderController.deleteOrder(req.params.id)
+  if (response.err) {
+    console.log(response.err);
   }
+  res.status(response.status).json(response)
 });
 
 //GET USER ORDERS

@@ -10,7 +10,6 @@ import {
 } from "@material-ui/icons";
 import styled from "styled-components";
 import { mobile } from "../responsive";
-import "./Css/Navbar.css";
 
 const Container = styled.div`
   display: flex;
@@ -98,6 +97,13 @@ const Image = styled.img`
   ${"" /* justifycontent: center; */}
 `;
 
+const Link = styled.a`
+  text-decoration: none;
+  &:visited {
+    color: black;
+  }
+`;
+
 const Footer = () => {
   return (
     <Container>
@@ -123,25 +129,25 @@ const Footer = () => {
         <Title>Useful Links</Title>
         <List>
           <ListItem>
-            <a href="../">Home</a>
+            <Link href="../">Home</Link>
           </ListItem>
           <ListItem>
-            <a href="../cart">Cart</a>
+            <Link href="../cart">Cart</Link>
           </ListItem>
           {/* <ListItem>
             <a href="./products/man">Man Fashion</a>
           </ListItem> */}
           <ListItem>
-            <a href="./products/women">Woman Fashion</a>
+            <Link href="./products/women">Woman Fashion</Link>
           </ListItem>
           <ListItem>
-            <a href="./products/jeans">Our amazing jeans</a>
+            <Link href="./products/jeans">Our amazing jeans</Link>
           </ListItem>
           <ListItem>
-            <a href="./products/men">Men fashion</a>
+            <Link href="./products/men">Men fashion</Link>
           </ListItem>
           <ListItem>
-            <a href="/chat">Live Chat</a>
+            <Link href="/chat">Live Chat</Link>
           </ListItem>
         </List>
       </Center>
@@ -156,9 +162,9 @@ const Footer = () => {
         </ContactItem>
         <ContactItem>
           <MailOutline style={{ marginRight: "10px" }} />{" "}
-          <a href="mailto:approjectcolman@gmail.com">
+          <Link href="mailto:approjectcolman@gmail.com">
             approjectcolman@gmail.com
-          </a>
+          </Link>
         </ContactItem>
 
         <Payment src="https://i.ibb.co/Qfvn4z6/payment.png" />

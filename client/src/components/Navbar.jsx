@@ -4,15 +4,9 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { mobile } from "../responsive";
 import { useSelector, useDispatch } from "react-redux";
-import { Link, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { logout } from "../redux/apiCalls";
-import "./Css/Navbar.css";
 import icon from "../img/icon.jpg";
-import Sidebar from "./Sidebar";
-import io from "socket.io-client";
-import axios from "axios";
-import { store } from "../redux/store";
-const socket = io("http://localhost:3030");
 
 const Container = styled.div`
   background-color: #f0ffff;
@@ -96,17 +90,26 @@ const MenuItem = styled.div`
   ${mobile({ fontSize: "12px", marginLeft: "10px" })}
 `;
 
-const a_style = {
-  "text-decoration": "none",
-};
+const SearchButton = styled.button`
+  border-radius: 10px;
+`;
+
+const Link = styled.a`
+  text-decoration: none;
+  &:visited {
+    color: black;
+  }
+`;
+
+
+
+
 
 const Navbar = () => {
   
- 
-  const [admin,setAdmin] = useState(false)
   const dispatch = useDispatch();
   const products = useSelector((state) => state.cart.products);
-  const user = useSelector((state) => state.user.currentUser);
+  const user = useSelector((state) => state.user);
   const quantity = useSelector((state) => state.cart.quantity);
   const [caturl, setCaturl] = useState("");
   let history = useHistory();
@@ -115,31 +118,21 @@ const Navbar = () => {
     history.push(caturl);
   };
 
-  const onClicklogout = () => {
-    logout(dispatch, products, user._id);
+  const onClicklogout = async() => {
+    const res = await logout(dispatch, products, user.currentUser._id);
+    if (res.err) {
+      alert(res.message)
+      return
+    }
     alert("logged out successfully !");
     history.push("/");
   };
-
-  useEffect(()=>{
-    const getUser = async () => {
-      const res = await axios.get("http://localhost:3030/api/users/find/"+store.getState().user?.currentUser._id);
-      console.log(res.data);
-      console.log(res.data.isAdmin);
-      setAdmin(res.data.isAdmin)
-    }
-    getUser();
-  },[])
 
   return (
     <Container>
       {/* <Sidebar /> */}
       <Wrapper>
         <Left>
-          <Sidebar
-            pageWrapId={"page-wrap"}
-            outerContainerId={"outer-container"}
-          />
           <Image src={icon} alt="logo" />
           <Language>EN</Language>
           <SearchContainer>
@@ -149,46 +142,46 @@ const Navbar = () => {
                 setCaturl("/products/" + e.target.value);
               }}
             />
-            <button onClick={handleSearchClick}>
-              <Search></Search>
-            </button>
+            <SearchButton onClick={handleSearchClick}>
+              <Search />
+            </SearchButton>
           </SearchContainer>
         </Left>
         <Center>
-          <Link to="/">
+          <Link href="/">
             <Logo>MMJBS Team</Logo>
           </Link>
         </Center>
         <Right>
-        {admin &&<MenuItem>
-              <a href="http://localhost:3001">
+        {user.currentUser?.isAdmin &&<MenuItem>
+              <Link href="http://localhost:3001">
                 Admin Dashboard
-              </a>
+              </Link>
             </MenuItem>}
-          {user ? (
+          {user.currentUser ? (
             <MenuItem />
           ) : (
             <MenuItem>
-              <Link to="/register" style={a_style}>
+              <Link href="/register">
                 REGISTER
               </Link>
             </MenuItem>
           )}
-          {user ? (
+          {user.currentUser ? (
             <MenuItem />
           ) : (
             <MenuItem>
-              <Link to="/login" style={a_style}>
+              <Link href="/login" >
                 SIGN IN
               </Link>
             </MenuItem>
           )}
-          {!user ? (
+          {!user.currentUser ? (
             <MenuItem />
           ) : (
             <MenuItem onClick={onClicklogout}>LOGOUT</MenuItem>
           )}
-          {user ? (
+          {user.currentUser ? (
             <Link to="/cart">
               <MenuItem>
                 <Badge badgeContent={quantity} color="primary">

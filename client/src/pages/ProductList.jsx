@@ -1,14 +1,21 @@
 import styled from "styled-components";
 import Navbar from "../components/Navbar";
 import Announcement from "../components/Announcement";
-import Products from "../components/Products";
 import Newsletter from "../components/Newsletter";
 import Footer from "../components/Footer";
 import { mobile } from "../responsive";
-import { useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getAllCategories, getProducts, getWishlist } from "../redux/apiCalls";
+import Product from "../components/Product";
 
 const Container = styled.div``;
+
+const ProductsWrapper = styled.div`
+  padding: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+`;
 
 const Title = styled.h1`
   margin: 20px;
@@ -39,31 +46,77 @@ const Select = styled.select`
 const Option = styled.option``;
 
 const ProductList = () => {
-  const location = useLocation();
-  const cat = location.pathname.split("/")[2];
-
   const [filters, setFilters] = useState({});
-  const [sort, setSort] = useState("newest");
+  const [categories, setCategories] = useState([])
+  const [products, setProducts] = useState([]);
+  const [wishlist, setWishlist] = useState([])
+
+  useEffect(() => {
+    const getAllProducts = async () => {
+      const res = await getProducts()
+      if (res.err) {
+        alert(res.message)
+        return
+      }
+      console.log(res.body);
+      setProducts(res.body);      
+    };
+    getAllProducts();
+  }, []);
+
+  useEffect(()=> {
+    const getCategories = async () => {
+      const res = await getAllCategories()
+      console.log(res);
+      if (!res.err) {
+        console.log(res.body);
+        setCategories(res.body)
+      }
+    }
+    getCategories()
+    return () => {}
+  },[])
 
   const handleFilters = (e) => {
-    const value = e.target.value;
+    if(e.target.value == "All") {
+      const filtersCopy = structuredClone(filters)
+      delete filtersCopy[e.target.name]
+      setFilters(filtersCopy)
+      return
+    }
     setFilters({
       ...filters,
-      [e.target.name]: value,
+      [e.target.name]: e.target.value,
     });
   };
-  console.log(filters);
+
+  useEffect(()=> {
+    const getWish = async () => {
+      const res = await getWishlist();
+      if (!res.err) {
+        const wishlistedProductsIds = res.body.products.map(item => item.productId)
+        setWishlist(wishlistedProductsIds)
+      }
+    }
+    getWish();
+    return () => {}
+  },[])
+
+  useEffect(()=> {
+    console.log(filters);
+  },[filters])
 
   return (
     <Container>
       <Navbar />
       <Announcement />
-      <Title>{cat}</Title>
+      <Title>Our Products</Title>
       <FilterContainer>
         <Filter>
           <FilterText>Filter Products:</FilterText>
           <Select name="color" onChange={handleFilters}>
             <Option disabled>Color</Option>
+            <Option>All</Option>
             <Option>white</Option>
             <Option>black</Option>
             <Option>red</Option>
@@ -73,23 +126,34 @@ const ProductList = () => {
           </Select>
           <Select name="size" onChange={handleFilters}>
             <Option disabled>Size</Option>
+            <Option>All</Option>
             <Option>XS</Option>
             <Option>S</Option>
             <Option>M</Option>
             <Option>L</Option>
             <Option>XL</Option>
           </Select>
+          {categories.length > 0 && 
+            <Select name="categories" onChange={handleFilters}>
+              <Option disabled>Category</Option>
+              <Option>All</Option>
+              {categories.map(category => {
+                return (
+                  <Option key={category}>{category}</Option>
+                )
+              })}
+            </Select>
+          }
         </Filter>
-        {/* <Filter>
-          <FilterText>Sort Products:</FilterText>
-          <Select onChange={(e) => setSort(e.target.value)}>
-            <Option value="newest">Newest</Option>
-            <Option value="asc">Price (asc)</Option>
-            <Option value="desc">Price (desc)</Option>
-          </Select>
-        </Filter> */}
       </FilterContainer>
-      <Products cat={cat} filters={filters} sort={sort} />
+      <ProductsWrapper>
+        {
+          products.filter((item) =>
+          Object.entries(filters).every(([key, value]) => {
+            return item[key].includes(value)
+          })).map((item) => <Product item={item} key={item._id} wishlisted={wishlist.includes(item._id) ? true: false}/>)
+        }
+      </ProductsWrapper>
       <Newsletter />
       <Footer />
     </Container>

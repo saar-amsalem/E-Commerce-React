@@ -68,13 +68,21 @@ const Error = styled.span`
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [errMessage, setErrMessage] = useState("")
   const dispatch = useDispatch();
   const { isFetching, error } = useSelector((state) => state.user);
 
   const handleClick = async (e) => {
     e.preventDefault();
-    await login(dispatch, { username, password });
-    console.log(JSON.stringify(store.getState().user?.currentUser));
+    if(!username || !password)
+    {
+      setErrMessage("Please fill all required values !")
+      return
+    }
+    const res = await login(dispatch, { username, password });
+    if (res.err) {
+      setErrMessage(res.message)
+    }
     socket.emit("display_user", store.getState().user?.currentUser);
   };
   return (
@@ -94,21 +102,9 @@ const Login = () => {
           <Button onClick={handleClick} disabled={isFetching}>
             LOGIN
           </Button>
-          {store.getState().user.error ? (
-            <Error>Wrong Credentials</Error>
-          ) : (
-            <span></span>
-          )}
-          <Link
-            style={{
-              margin: "5px 0px",
-              "font-size": "12px",
-              "text-decoration": "underline",
-              cursor: "pointer",
-            }}
-          >
-            DO NOT YOU REMEMBER THE PASSWORD?
-          </Link>
+          { error && 
+            <Error>{errMessage}</Error>
+          }
           <Link
             to="/register"
             style={{

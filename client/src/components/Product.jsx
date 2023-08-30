@@ -2,13 +2,10 @@ import {
   FavoriteBorderOutlined,
   SearchOutlined,
   FavoriteOutlined,
-  ShoppingCartOutlined,
 } from "@material-ui/icons";
-import { useState } from "react";
-import { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
-import { createWishlist,updateWishlist,getWishlist,deleteWishlist } from "../redux/apiCalls";
+import { updateWishlist,deleteWishlist } from "../redux/apiCalls";
 
 const Info = styled.div`
   opacity: 0;
@@ -74,70 +71,55 @@ const Icon = styled.div`
   }
 `;
 
-const Product = ({ item }) => {
-  const [wish,setWish] = useState()
-  const [fill,setFill] = useState(false)
-
-  useEffect(()=> {
-    const getWish = async () => {
-    try {
-      const res = await getWishlist();
-      console.log(res);
-      res && setWish(res)
-      res.products.find((obj)=>obj.productId == item._id) ? setFill(true) : setFill(false)
-    } catch (error) {
-      console.log(error);
-    }
+const Link = styled.a`
+  text-decoration: none;
+  color: black;
+  &:visited {
+    color: black;
   }
-  getWish();
-  },[])
+`;
+
+const Product = ({ item, wishlisted }) => {
+
+  const [inWishList, setInWishList] = useState(wishlisted)
 
   const clickHandler = async() => {
-    
-    console.log(wish);
-    if (wish)
-    {
-      const hasproduct = wish.products.find((obj)=>obj.productId == item._id)
-      console.log(hasproduct);
-      if (!hasproduct)
+      if (!inWishList)
       {
-        
         const res = await updateWishlist({ productId: item._id})
-        setWish(res)
-        console.log(res + "inserted");
-        setFill(true)
+        console.log(res);
+        if(res.err) {
+          alert(res.err.message)
+          return
+        }
+        setInWishList(true)
       }
       else
       {
         const res = await deleteWishlist({ productId: item._id})
-        setWish(res)
-        console.log(res+ "deleted");
-        setFill(false)
+        console.log(res);
+        if(res.err) {
+          console.log(res.body);
+          alert(res.message)
+          return
+        }
+        setInWishList(false)
       }
     }
-    else {
-      setFill(true)
-      const res = await createWishlist({productId: item._id})
-      setWish(res)
-      console.log(res);
-    }
-    
-  }
+  
+
   return (
     <Container>
       <Circle />
       <Image src={item.img} />
       <Info>
-        {/* <Icon>
-          <ShoppingCartOutlined />
-        </Icon> */}
         <Icon>
-          <Link to={`/product/${item._id}`}>
+          <Link href={`/product/${item._id}`}>
             <SearchOutlined />
           </Link>
         </Icon>
          <Icon onClick={clickHandler} color={"black"}>
-          {fill ? <FavoriteOutlined /> : <FavoriteBorderOutlined />}
+          {inWishList ? <FavoriteOutlined /> : <FavoriteBorderOutlined />}
         </Icon> 
       </Info>
     </Container>

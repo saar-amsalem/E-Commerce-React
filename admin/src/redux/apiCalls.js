@@ -24,7 +24,7 @@ export const login = async (dispatch, user) => {
   dispatch(loginStart());
   try {
     const res = await axios.post(BASE_URL + "auth/login", user);
-    dispatch(loginSuccess(res.data));
+    dispatch(loginSuccess(res.data.body));
   } catch (err) {
     dispatch(loginFailure());
   }
@@ -50,7 +50,7 @@ export const getUsers = async () => {
         token: `Bearer ${store.getState().user.currentUser.accessToken}`,
       },
     });
-    return res.data;
+    return res.data.body;
   } catch (error) {
     console.log(error);
   }
@@ -63,7 +63,7 @@ export const getFiveNewUsers = async () => {
         token: `Bearer ${store.getState().user.currentUser.accessToken}`,
       },
     });
-    return res.data;
+    return res.data.body;
   } catch (err) {
     console.log(err);
   }
@@ -76,7 +76,7 @@ export const getUserByID = async (id) => {
         token: `Bearer ${store.getState().user.currentUser.accessToken}`,
       },
     });
-    return res.data;
+    return res.data.body;
   } catch (error) {
     console.log(error);
   }
@@ -89,7 +89,7 @@ export const updateUser = async (userid, obj) => {
         token: `Bearer ${store.getState().user.currentUser.accessToken}`,
       },
     });
-    return res.data;
+    return res.data.body;
   } catch (error) {
     console.log(error);
   }
@@ -114,7 +114,7 @@ export const getUserStats = async () => {
         token: `Bearer ${store.getState().user.currentUser.accessToken}`,
       },
     });
-    return res.data;
+    return res.data.body;
   } catch (err) {
     console.log(err);
   }
@@ -127,7 +127,7 @@ export const getOnline = async () => {
         token: `Bearer ${store.getState().user.currentUser.accessToken}`,
       },
     });
-    return res;
+    return res.data.body;
   } catch (error) {
     console.log(error);
   }
@@ -139,7 +139,7 @@ export const getProducts = async (dispatch) => {
   dispatch(getProductStart());
   try {
     const res = await axios.get(BASE_URL + "products");
-    dispatch(getProductSuccess(res.data));
+    dispatch(getProductSuccess(res.data.body));
   } catch (err) {
     dispatch(getProductFailure());
   }
@@ -221,8 +221,8 @@ export const getOrderByUserId = async (id) => {
         token: `Bearer ${store.getState().user.currentUser.accessToken}`,
       },
     });
-    console.log(res.data);
-    return res.data;
+    console.log(res.data.body);
+    return res.data.body;
   } catch (err) {
     console.log(err);
   }
@@ -236,7 +236,7 @@ export const getOrderByOrderId = async (id) => {
       },
     });
     console.log(res.data);
-    return res.data;
+    return res.data.body;
   } catch (err) {
     console.log(err);
   }
@@ -262,7 +262,7 @@ export const getFiveNewOrders = async () => {
       },
     });
     console.log(res.data);
-    return res.data;
+    return res.data.body;
   } catch (err) {
     console.log(err);
   }
@@ -276,7 +276,7 @@ export const getOrderStats = async () => {
       },
     });
     console.log(res.data);
-    return res.data;
+    return res.data.body;
   } catch (err) {
     console.log(err);
   }
@@ -313,7 +313,7 @@ export const getAllTimeSales = async (id) => {
       }
     );
     console.log(res.data);
-    return res.data;
+    return res.data.body;
   } catch (err) {
     console.log(err);
   }

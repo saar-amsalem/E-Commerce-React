@@ -30,7 +30,7 @@ const App = () => {
         <Route path="/chat">
           <ChatApp />
         </Route>
-        <Route path="/products/:category">
+        <Route path="/products">
           <ProductList />
         </Route>
         <Route path="/product/:id">

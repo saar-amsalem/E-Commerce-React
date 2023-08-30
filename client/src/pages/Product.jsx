@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { addProduct } from "../redux/cartRedux";
 import { useSelector, useDispatch } from "react-redux";
+import { getProductById } from "../redux/apiCalls";
 
 const Container = styled.div``;
 
@@ -125,7 +126,6 @@ const Product = () => {
   const location = useLocation();
   const user = useSelector((state) => state.user.currentUser);
   const history = useHistory();
-  const id = location.pathname.split("/")[2];
   const [product, setProduct] = useState({});
   const [quantity, setQuantity] = useState(1);
   const [color, setColor] = useState("");
@@ -134,16 +134,18 @@ const Product = () => {
 
   useEffect(() => {
     const getProduct = async () => {
-      try {
-        const res = await axios.get(
-          "http://localhost:3030/api/products/find/" + id
-        );
-        setProduct(res.data);
-        console.log(product);
-      } catch {}
+      const id = location.pathname.split("/")[2];
+      const res = await getProductById(id)
+      console.log(res);
+      if (res.err) {
+        alert(res.message)
+        return
+      }
+      setProduct(res.body);
     };
     getProduct();
-  }, [id]);
+    return () => {}
+  }, []);
 
   const handleQuantity = (type) => {
     if (type === "dec") {
@@ -171,7 +173,7 @@ const Product = () => {
         <InfoContainer>
           <Title>{product.title}</Title>
           <Desc>{product.desc}</Desc>
-          <Price>$ {product.price}</Price>
+          <Price>{product.price} $</Price>
           <FilterContainer>
             <Filter>
               <FilterTitle>Color:</FilterTitle>

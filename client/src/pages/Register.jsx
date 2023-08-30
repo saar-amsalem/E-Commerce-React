@@ -3,7 +3,7 @@ import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 import {useDispatch} from "react-redux"
 import { mobile } from "../responsive";
-import { login } from "../redux/apiCalls";
+import { login, register } from "../redux/apiCalls";
 const axios = require("axios")
 
 const Container = styled.div`
@@ -59,33 +59,37 @@ const Button = styled.button`
   cursor: pointer;
 `;
 
+const Error = styled.span`
+  color: red;
+`;
+
 const Register = () => {
   const [username,setUser] = useState('')
   const [email,setEmail] = useState('')
   const [pass,setPass] = useState('')
   const [cpass,setCpass] = useState('')
-  const [err,setErr] = useState(false)
-  const history = useHistory();
+  const [err,setErr] = useState('')
+  const history = useHistory()
   const dispatch = useDispatch()
+  
   const registerHandler = async(e) =>{
       e.preventDefault();
-      if(pass===cpass){
-      try {
-        await axios.post("http://localhost:3030/api/auth/register",
-        {
+      if(pass===cpass) {
+        const user = {
           username: username,
           email: email,
-          pass: pass,
-        })
-        alert("Registerd Successfully !")
-      } catch (err) {
-        console.log(err);
-      }}
-      else{
-        setErr(true);
+          password: pass,
+        }
+        const response = await register(dispatch, user)
+        if (response.err) {
+          setErr(response.message)
+          return
+        }
+        history.push("/")
       }
-      await login(dispatch, { username, pass });
-      history.push("/")
+      else{
+        setErr('passwords are not the same, please try again');
+      }
     }
   return (
     <Container>
@@ -100,8 +104,9 @@ const Register = () => {
             By creating an account, I consent to the processing of my personal
             data in accordance with the <b>PRIVACY POLICY</b>
           </Agreement>
+          {err && <Error>{err}</Error>}
           <Button onClick={registerHandler}>CREATE</Button>
-          {err && <span>passwords are not the same, please try again</span>}
+          
         </Form>
       </Wrapper>
     </Container>
