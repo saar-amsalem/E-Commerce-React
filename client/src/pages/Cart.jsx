@@ -10,12 +10,9 @@ import StripeCheckout from "react-stripe-checkout";
 import { useHistory } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { removeProduct, addProductCartPage } from "../redux/cartRedux";
-import { clearCartData } from "../redux/apiCalls";
+import { clearCartData, getRecommendedProducts, pay } from "../redux/apiCalls";
 import { Popup } from "reactjs-popup";
 import "../components/Css/popupcart.css";
-const axios = require("axios");
-
-const KEY = process.env.REACT_APP_STRIPE;
 
 const Container = styled.div``;
 
@@ -165,91 +162,101 @@ const Button = styled.button`
   font-weight: 600;
 `;
 
+const ModalClose = styled.button`
+  cursor: pointer;
+  position: absolute;
+  display: block;
+  padding: 2px 5px;
+  line-height: 20px;
+  right: -10px;
+  top: -10px;
+  font-size: 24px;
+  background: #000;
+  border-radius: 18px;
+  border: 1px solid #cfcece;
+`;
+
+const Modal = styled.div`
+  font-size: 12px;
+`;
+
+const ModalHeader = styled.div`
+  width: 100%;
+  border-bottom: 1px solid gray;
+  font-size: 18px;
+  text-align: center;
+  padding: 5px;
+`;
+
+const ModalContent = styled.div`
+  width: 100%;
+  padding: 10px 5px;
+`;
+
+const ModalActions = styled.div`
+  width: 100%;
+  padding: 10px 5px;
+  margin: auto;
+  text-align: center;
+`;
+
+const LineSpace = styled.br``;
+
+const ProductsTitle = styled.span`
+    font-weight: bold;
+`;
+
 const Cart = () => {
   const cart = useSelector((state) => state.cart);
-  const [stripeToken, setStripeToken] = useState(null);
-  const [sugProducts, setSugProducts] = useState([]);
+  const [suggestedProducts, setSuggestedProducts] = useState([]);
   const history = useHistory();
   const quantity = useSelector((state) => state.cart.quantity);
   const dispatch = useDispatch();
 
-  //let [bagSize,setBagSize] = useState(0);
-
-  const onToken = (token) => {
-    setStripeToken(token);
+  const onToken = async(token) => {
+    const paymentResponse = await pay(token.id,cart.total)
+    console.log(paymentResponse);
+    if (paymentResponse.err) {
+      alert(paymentResponse.message)
+      return
+    }
+    history.push("/success", {
+      stripeData: paymentResponse.body,
+    });
   };
 
-  /*const onSize = (sum) => {
-    setBagSize(sum);
-  }*/
   useEffect(() => {
-    const getProducts = async () => {
-      try {
-        /*cart.products.forEach(prod=> {
-            prod.categories.forEach(async (element) => {
-              let res = await axios.get(`http://localhost:3030/api/products?category=`+element);
-              let temp = res.data.filter((prod)=>{return !cart.products.find((obj)=>obj._id===prod._id)})
-              setSugProducts(sugProducts.concat(...sugProducts,temp))
-            });
-          })*/
-        let allCategories = [];
-        let allProductIds = [];
-
-        for (let i = 0; i < cart.products.length; i++) {
-          allCategories = allCategories.concat(cart.products[i].categories);
-          allProductIds.push(cart.products[i]._id);
+    const fetch = async () => {
+        const categoriesPicksCounter = {}
+        cart.products.map(product => {
+          product.categories.map(category => {
+            categoriesPicksCounter[category] = product.quantity
+          })
+        })
+        console.log(categoriesPicksCounter);
+        const topPickedCategory = Object.entries(categoriesPicksCounter).reduce(
+          (max, [category, count]) => (count > max.count ? { category, count } : max),
+          { category: "", count: -1 }
+        ).category;
+        
+        const recommendedProductsResponse = await getRecommendedProducts(topPickedCategory)
+        
+        if (recommendedProductsResponse.err) {
+          alert(recommendedProductsResponse.message)
+          return
         }
-        const res = await axios.get(`http://localhost:3030/api/products`);
-        const allProducts = res.data;
-        console.log(res.data);
-        let ourProducts = allProducts.filter((product) => {
-          for (let i = 0; i < product.categories.length; i++) {
-            for (let j = 0; j < allCategories.length; j++) {
-              if (product.categories[i] == allCategories[j]) return true;
-            }
-          }
-          return false;
-        });
-        let sProducts = ourProducts.filter(
-          (product) => !allProductIds.includes(product._id)
-        );
-        console.log(sProducts);
-        setSugProducts(sProducts);
-      } catch (err) {
-        console.log(err);
-      }
+        setSuggestedProducts(recommendedProductsResponse.body.filter(item => !cart.products.some(cartItem => cartItem._id === item._id)));      
     };
-    getProducts();
+    fetch();
+    return () => {}
   }, []);
 
-  useEffect(() => {
-    const makeRequest = async () => {
-      try {
-        const res = await axios.post(
-          "http://localhost:3030/api/checkout/payment",
-          {
-            tokenId: stripeToken.id,
-            amount: cart.total,
-          }
-        );
-        console.log(res.data);
-        console.log(res.status);
-        history.push("/success", {
-          stripeData: res.data,
-          products: cart,
-        });
-      } catch {}
-    };
-    makeRequest();
-  }, [stripeToken, cart.total, history]);
 
   const clearHandler = () => {
     clearCartData(dispatch);
-    window.location.reload(false);
   };
   const removeHandler = (product) => {
     dispatch(removeProduct(product));
-    window.location.reload(false);
   };
   const addHandler = (product) => {
     dispatch(addProductCartPage(product));
@@ -257,9 +264,8 @@ const Cart = () => {
   const handleContinue = () => {
     history.push("/");
   };
-  const findsameproduct = () => {
-    console.log(sugProducts);
-  };
+  
+
   return (
     <Container>
       <Navbar />
@@ -333,11 +339,9 @@ const Cart = () => {
               <SummaryItemText>Total</SummaryItemText>
               <SummaryItemPrice>$ {cart.total}</SummaryItemPrice>
             </SummaryItem>
-            {stripeToken && <span>Processing... Please Wait !</span>}
-
             <Popup
               trigger={
-                <Button onClick={findsameproduct} className="button" style={{"width": "100%"}}>
+                <Button className="button" style={{"width": "100%"}}>
                   CHECKOUT NOW
                 </Button>
               }
@@ -345,26 +349,24 @@ const Cart = () => {
               nested
             >
               {(close) => (
-                <div className="modal">
-                  <button className="close" onClick={close}>
+                <Modal>
+                  <ModalClose onClick={close}>
                     &times;
-                  </button>
-                  <div className="header">
-                    {" "}
-                    Hold on ! don't miss out those products you might like{" "}
-                  </div>
-                  <div className="content">
-                    {" "}
-                    {sugProducts?.map((product) => (
+                  </ModalClose>
+                  <ModalHeader>
+                    Hold on ! don't miss out those products you might like
+                  </ModalHeader>
+                  <ModalContent>
+                    {suggestedProducts?.map((product) => (
                       <Product key={product._id}>
                         <ProductDetail>
                           <Link to={"/product/" + product._id}>
                             <Image src={product.img} />
                           </Link>
                           <Details>
-                            <span>
-                              <b>Product:</b> {product.title}
-                            </span>
+                            <ProductsTitle>
+                              {product.title}
+                            </ProductsTitle>
                           </Details>
                         </ProductDetail>
                         <PriceDetail>
@@ -372,20 +374,21 @@ const Cart = () => {
                         </PriceDetail>
                       </Product>
                     ))}
-                    <br />
+                    <LineSpace />
                     Just click on the item you like !
-                  </div>
-                  <div className="actions">
+                  </ModalContent>
+                  <ModalActions>
                     <Popup
                       trigger={
                         <StripeCheckout
                           name="A-TEAM Shop"
                           zipCode={false}
-                          //image={""}
                           description={`Your total is $${cart.total}`}
                           amount={cart.total * 100}
+                          shippingAddress
                           token={onToken}
-                          stripeKey={KEY}
+                          key={process.env.REACT_APP_STRIPE}
+                          stripeKey={process.env.REACT_APP_STRIPE}
                         >
                           <Button className="button">
                             Continue to payment
@@ -394,18 +397,17 @@ const Cart = () => {
                       }
                       position="top center"
                       nested
-                    ></Popup>
+                    />
                     <Button
                       className="button"
                       onClick={() => {
                         close();
                       }}
-                      
                     >
                       Not yet...
                     </Button>
-                  </div>
-                </div>
+                  </ModalActions>
+                </Modal>
               )}
             </Popup>
           </Summary>

@@ -1,59 +1,88 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation,useHistory } from "react-router-dom";
-import {store} from "../redux/store"
-import axios from "axios";
-import { clearCartData, deleteCart } from "../redux/apiCalls";
+import { addOrder, clearCartData, deleteCart } from "../redux/apiCalls";
+import styled from "styled-components";
+
+const Container = styled.div`
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+`;
+
+const Error = styled.span`
+  color: red;
+`;
+
+const Title = styled.span`
+  font-size: 24px;
+  font-weight: 300;
+  color: black;
+`;
+
+const Button = styled.button`
+  width: 40%;
+  border: none;
+  padding: 15px 20px;
+  background-color: teal;
+  color: white;
+  cursor: pointer;
+  margin-bottom: 10px;
+  &:disabled {
+    color: green;
+    cursor: not-allowed;
+  }
+`;
 
 const Success = () => {
   const location = useLocation();
-  //in Cart.jsx I sent data and cart. Please check that page for the changes.(in video it's only data)
   const data = location.state.stripeData;
-  const cart = store.getState().cart;
+  const cart = useSelector((state) => state.cart)
   const currentUser = useSelector((state) => state.user.currentUser);
   const [orderId, setOrderId] = useState(null);
+  const [err,setErr] = useState("")
   const history = useHistory();
   const dispatch = useDispatch()
   
   const handleClick = async() => {  
     history.push("/")
   }
+
   useEffect(() => {
     const createOrder = async () => {
-      try {
-        const res = await axios.post("http://localhost:3030/api/orders", {
-          userId: currentUser._id,
-          products: cart.products.map((item) => ({
-            productId: item._id,
-            quantity: item.quantity
-          })),
-          amount: cart.total,
-          address: data.billing_details.address,
-          status: "processing"
-        },{headers: {token: `Bearer ${store.getState().user.currentUser.accessToken}`}});
-        setOrderId(res.data._id);
-        await deleteCart(store.getState().user.currentUser._id);
-        clearCartData(dispatch)
-      } catch {}
+      if (!data) return
+      const orderCreated = await addOrder({
+        userId: currentUser._id,
+        products: cart.products.map((item) => ({
+          productId: item._id,
+          quantity: item.quantity
+        })),
+        amount: cart.total,
+        address: data.billing_details.address,
+        status: "processing"
+      })
+      if (orderCreated.err) {
+        setErr(orderCreated.message)
+        return
+      }
+      setOrderId(orderCreated.body._id);
+      await deleteCart(currentUser._id);
+      clearCartData(dispatch)
     };
-    data && createOrder();
-  }, [cart, data, currentUser]);
+    createOrder();
+    return () => {}
+  }, []);
 
   return (
-    <div
-      style={{
-        height: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      {orderId
-        ? `Order has been created successfully. Your order number is ${orderId}`
-        : `Something went wrong !`}
-      <button style={{ padding: 10, marginTop: 20 }} onClick={handleClick}>Go to Homepage</button>
-    </div>
+    <Container>
+      { err
+        ? <Error>{err}</Error> 
+        : <Title>{`Order has been created successfully. Your order number is ${orderId}`}</Title>
+      }
+      <Button onClick={handleClick}>Go to Homepage</Button>
+    </Container>
   );
 };
 

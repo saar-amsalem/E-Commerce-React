@@ -5,6 +5,7 @@ import {
   logoutFailure,
   logoutStart,
   logoutfromuser,
+  updateUser,
 } from "./userRedux";
 import { clearCart, loadCart } from "./cartRedux";
 import axios from "axios";
@@ -162,11 +163,12 @@ export const deleteCart = async (id) => {
 
 export const addOrder = async (order) => {
   try {
-    await axios.post("http://localhost:3030/api/orders", order, {
+    const res = await axios.post("http://localhost:3030/api/orders", order, {
       headers: {
         token: `Bearer ${store.getState().user.currentUser.accessToken}`,
       },
     });
+    return res.data
   } catch (err) {
     return err.response.data;
   }
@@ -193,10 +195,20 @@ export const getProductById = async (id) => {
 
 export const getAllCategories = async () => {
   try {
-    console.log("in api calls getAllCategories !");
     const res = await axios.get(`http://localhost:3030/api/products/categories`);    
     return res.data
   } catch (error) {
+    return error.response.data;
+  }
+}
+
+export const getRecommendedProducts = async (category) => {
+  try {
+    console.log(category);
+    const res = await axios.get(`http://localhost:3030/api/products/recommended/${category}`);    
+    return res.data
+  } catch (error) {
+    console.log(error);
     return error.response.data;
   }
 }
@@ -273,9 +285,38 @@ export const getUserById = async () => {
         token: `Bearer ${store.getState().user.currentUser.accessToken}`,
       },
     });
-    console.log(res.data.body);
-    return res.data.body
+    return res.data
   } catch (err) {
+    return err.response.data;
+  }
+};
+
+export const updateUserInDB = async (dispatch, userid, obj) => {
+  try {
+    console.log("apiCalls token : ", store.getState().user.currentUser.accessToken );
+    const res = await axios.put("http://localhost:3030/api/users/" + userid, obj, {
+      headers: {
+        token: `Bearer ${store.getState().user.currentUser.accessToken}`,
+      },
+    });
+    dispatch(updateUser(res.data.body))
+    return res.data;
+  } catch (err) {
+    return err.response.data;
+  }
+};
+
+
+//------------------------------------Payment-api------------------------------------------------//
+
+export const pay = async (stripeToken, amount) => {
+  try {
+    console.log("in api calls pay method !");
+    const res = await axios.post("http://localhost:3030/api/checkout/payment", { tokenId: stripeToken, amount: amount} )
+    console.log(res.data.body);
+    return res.data
+  } catch (err) {
+    console.log(err.response.data);
     return err.response.data;
   }
 };

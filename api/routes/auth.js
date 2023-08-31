@@ -12,8 +12,6 @@ router.post("/register", async (req, res) => {
 });
 
 //LOGIN
-
-
 router.post('/login', async (req, res) => {
     const response = await authController.login(req.body)
     if (response.err) {

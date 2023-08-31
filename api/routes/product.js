@@ -57,4 +57,12 @@ router.get("/categories", async (req,res) => {
     res.status(response.status).json(response)
 })
 
+router.get("/recommended/:category", async (req,res) => {
+  const response = await productController.getRecommendedProducts(req.params.category)
+    if (response.err) {
+      console.log(response.err);
+    }
+    res.status(response.status).json(response)
+})
+
 module.exports = router;

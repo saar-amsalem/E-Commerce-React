@@ -3,6 +3,10 @@
     margin-top: 10px;
 }
 
+a{
+    text-decoration: none;
+    color: inherit;
+}
 
 .link{
     text-decoration: none;

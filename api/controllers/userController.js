@@ -1,8 +1,9 @@
 const userService = require("../service/userService")
 const CryptoJS = require("crypto-js");
+const jwt = require("jsonwebtoken")
 
 const updateUser = async(id,userToUpdate) => {
-    if (userToUpdate.password) {
+    if (userToUpdate.hasOwnProperty("password")) {
         userToUpdate.password = CryptoJS.AES.encrypt(
           userToUpdate.password,
           process.env.PASS_SEC
@@ -10,8 +11,18 @@ const updateUser = async(id,userToUpdate) => {
       }
     
     const user = await userService.update(id, userToUpdate)
+
+    const accessToken = jwt.sign(
+        {
+          id: user.body._id,
+          isAdmin: user.body.isAdmin,
+        },
+        process.env.JWT_SEC,
+            {   expiresIn:"3d"  }
+        );
+        console.log({...user.body._doc , accessToken });
     return {
-        body: user.body,
+        body: {...user.body._doc , accessToken },
         status: user.err ? 500 : 200,
         err: user.err,
         ...(user.err ? { message: "Could Not Update User !" } : {})

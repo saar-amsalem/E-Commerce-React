@@ -10,9 +10,24 @@ const getCategories = async () => {
         }
     } catch (error) {
         return {
-            body: err,
+            body: error,
             err: true
         }
     }
 }
-module.exports = {...productService, getCategories}
+
+const getRecommendedProducts = async (category) => {
+    try {
+        const recommended = await Product.find({ categories: category })
+        return {
+            body: recommended.slice(0,3),
+            err: false
+        }
+    } catch (error) {
+        return {
+            body: error,
+            err: true
+        }
+    }
+}
+module.exports = {...productService, getCategories, getRecommendedProducts}

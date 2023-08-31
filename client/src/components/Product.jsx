@@ -50,6 +50,8 @@ const Circle = styled.div`
 const Image = styled.img`
   height: 75%;
   z-index: 2;
+  display: block;
+  max-width: 100%
 `;
 
 const Icon = styled.div`

@@ -129,22 +129,13 @@ const Footer = () => {
         <Title>Useful Links</Title>
         <List>
           <ListItem>
-            <Link href="../">Home</Link>
+            <Link href="/">Home</Link>
           </ListItem>
           <ListItem>
-            <Link href="../cart">Cart</Link>
-          </ListItem>
-          {/* <ListItem>
-            <a href="./products/man">Man Fashion</a>
-          </ListItem> */}
-          <ListItem>
-            <Link href="./products/women">Woman Fashion</Link>
+            <Link href="/cart">Cart</Link>
           </ListItem>
           <ListItem>
-            <Link href="./products/jeans">Our amazing jeans</Link>
-          </ListItem>
-          <ListItem>
-            <Link href="./products/men">Men fashion</Link>
+            <Link href="/products">Our Products</Link>
           </ListItem>
           <ListItem>
             <Link href="/chat">Live Chat</Link>

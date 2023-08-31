@@ -60,11 +60,22 @@ const getCategories = async () => {
     }
 }
 
+const getRecommendedProducts = async (category) => {
+    const recommended = await productService.getRecommendedProducts(category)
+    return {
+        body: recommended.body,
+        status: recommended.err ? 500 : 200,
+        err: recommended.err,
+        ...(recommended.err ? { message: "No Recommended Products Found !" } : {})
+    }
+}
+
 module.exports = {
     createProduct,
     updateProduct,
     deleteProduct,
     getProduct,
     getAllProducts,
-    getCategories
+    getCategories,
+    getRecommendedProducts
 }

@@ -4,7 +4,6 @@ import ProductList from "./pages/ProductList";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Cart from "./pages/Cart";
-import Tracking from "./pages/Tracking";
 import Myaccount from "./pages/Myaccount";
 import Wishlist from "./pages/Wishlist";
 import ChatApp from "./components/ChatApp";
@@ -46,14 +45,11 @@ const App = () => {
         <Route path="/register">
           <Register />
         </Route>
-        <Route path="/tracking">
-          <Tracking />
-        </Route>
         <Route path="/wishlist">
           <Wishlist />
         </Route>
         <Route path="/myaccount">
-          <Myaccount />
+          {user ? <Myaccount /> : <Redirect to="/login" /> }
         </Route>
       </Switch>
     </Router>

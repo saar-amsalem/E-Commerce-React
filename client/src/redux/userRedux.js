@@ -34,8 +34,12 @@ const userSlice = createSlice({
       state.isFetching = false;
       state.error = true
     },
+    updateUser: (state, action) => {
+      state.currentUser = action.payload
+      state.token = action.payload.accessToken
+    }
   },
 });
 
-export const { loginStart, loginSuccess, loginFailure,logoutSuccess: logoutfromuser,logoutStart,logoutFailure,token } = userSlice.actions;
+export const { loginStart, loginSuccess, loginFailure, logoutSuccess: logoutfromuser, logoutStart, logoutFailure, updateUser, token } = userSlice.actions;
 export default userSlice.reducer;

@@ -25,8 +25,11 @@ export const login = async (dispatch, user) => {
   try {
     const res = await axios.post(BASE_URL + "auth/login", user);
     dispatch(loginSuccess(res.data.body));
-  } catch (err) {
+    return res.data
+  } catch (error) {
+    console.log(error);
     dispatch(loginFailure());
+    return error.response.data
   }
 };
 
@@ -36,9 +39,10 @@ export const logoutuser = (dispatch) => {
 
 export const createUser = async (user) => {
   try {
-    await axios.post("http://localhost:3030/api/auth/register", user);
-  } catch (err) {
-    console.log(err);
+    await axios.post(BASE_URL + "auth/register", user);
+  } catch (error) {
+    console.log(error);
+    return error.response.data
   }
 };
 
@@ -50,9 +54,10 @@ export const getUsers = async () => {
         token: `Bearer ${store.getState().user.currentUser.accessToken}`,
       },
     });
-    return res.data.body;
+    return res.data;
   } catch (error) {
     console.log(error);
+    return error.response.data
   }
 };
 
@@ -63,9 +68,10 @@ export const getFiveNewUsers = async () => {
         token: `Bearer ${store.getState().user.currentUser.accessToken}`,
       },
     });
-    return res.data.body;
-  } catch (err) {
-    console.log(err);
+    return res.data;
+  } catch (error) {
+    console.log(error);
+    return error.response.data
   }
 };
 
@@ -79,6 +85,7 @@ export const getUserByID = async (id) => {
     return res.data.body;
   } catch (error) {
     console.log(error);
+    return error.response.data
   }
 };
 
@@ -92,31 +99,35 @@ export const updateUser = async (userid, obj) => {
     return res.data.body;
   } catch (error) {
     console.log(error);
+    return error.response.data
   }
 };
 
 export const deleteUser = async (userid) => {
   try {
-    await axios.delete(BASE_URL + "users/" + userid, {
+    const res = await axios.delete(BASE_URL + "users/" + userid, {
       headers: {
         token: `Bearer ${store.getState().user.currentUser.accessToken}`,
       },
     });
+    return res.data
   } catch (error) {
     console.log(error);
+    return error.response.data
   }
 };
 
 export const getUserStats = async () => {
   try {
-    const res = await axios.get("http://localhost:3030/api/users/stats", {
+    const res = await axios.get(BASE_URL + "users/stats", {
       headers: {
         token: `Bearer ${store.getState().user.currentUser.accessToken}`,
       },
     });
-    return res.data.body;
-  } catch (err) {
-    console.log(err);
+    return res.data;
+  } catch (error) {
+    console.log(error);
+    return error.response.data
   }
 };
 
@@ -130,6 +141,7 @@ export const getOnline = async () => {
     return res.data.body;
   } catch (error) {
     console.log(error);
+    return error.response.data
   }
 };
 
@@ -140,8 +152,10 @@ export const getProducts = async (dispatch) => {
   try {
     const res = await axios.get(BASE_URL + "products");
     dispatch(getProductSuccess(res.data.body));
-  } catch (err) {
-    dispatch(getProductFailure());
+  } catch (error) {
+    dispatch(getProductFailure(error.response.data.message));
+    console.log(error.response.data);
+    return error.response.data
   }
 };
 
@@ -154,8 +168,10 @@ export const deleteProduct = async (id, dispatch) => {
       },
     });
     dispatch(deleteProductSuccess(id));
-  } catch (err) {
-    dispatch(deleteProductFailure());
+  } catch (error) {
+    dispatch(deleteProductFailure(error.response.data.message));
+    console.log(error.response.data);
+    return error.response.data
   }
 };
 
@@ -169,8 +185,10 @@ export const updateProduct = async (id, product, dispatch) => {
       },
     });
     dispatch(updateProductSuccess({ id, product }));
-  } catch (err) {
+  } catch (error) {
     dispatch(updateProductFailure());
+    console.log(error);
+    return error.response.data
   }
 };
 
@@ -184,8 +202,10 @@ export const addProduct = async (product, dispatch) => {
     });
     console.log(res.data);
     dispatch(addProductSuccess(res.data));
-  } catch (err) {
+  } catch (error) {
     dispatch(addProductFailure());
+    console.log(error);
+    return error.response.data
   }
 };
 
@@ -199,7 +219,10 @@ export const getOrders = async () => {
       },
     });
     return res.data;
-  } catch {}
+  } catch (error) {
+    console.log(error);
+    return error.response.data
+  }
 };
 
 export const deleteOrder = async (id) => {
@@ -209,8 +232,9 @@ export const deleteOrder = async (id) => {
         token: `Bearer ${store.getState().user.currentUser.accessToken}`,
       },
     });
-  } catch (err) {
-    console.log(err);
+  } catch (error) {
+    console.log(error);
+    return error.response.data
   }
 };
 
@@ -223,8 +247,9 @@ export const getOrderByUserId = async (id) => {
     });
     console.log(res.data.body);
     return res.data.body;
-  } catch (err) {
-    console.log(err);
+  } catch (error) {
+    console.log(error);
+    return error.response.data
   }
 };
 
@@ -237,34 +262,41 @@ export const getOrderByOrderId = async (id) => {
     });
     console.log(res.data);
     return res.data.body;
-  } catch (err) {
-    console.log(err);
+  } catch (error) {
+    console.log(error);
+    return error.response.data
   }
 };
 
 export const updateOrder = async (id, order) => {
   try {
-    await axios.put(BASE_URL + "orders/" + id, order, {
+    console.log(order);
+    console.log(id);
+    const res = await axios.put(BASE_URL + "orders/" + id, order, {
       headers: {
         token: `Bearer ${store.getState().user.currentUser.accessToken}`,
       },
     });
-  } catch (err) {
-    console.log(err);
+    return res.data
+  } catch (error) {
+    console.log(error);
+    return error.response.data
   }
 };
 
 export const getFiveNewOrders = async () => {
   try {
+    console.log(store.getState().user.currentUser.accessToken);
     const res = await axios.get(BASE_URL + "orders/stats", {
       headers: {
         token: `Bearer ${store.getState().user.currentUser.accessToken}`,
       },
     });
     console.log(res.data);
-    return res.data.body;
-  } catch (err) {
-    console.log(err);
+    return res.data;
+  } catch (error) {
+    console.log(error);
+    return error.response.data
   }
 };
 
@@ -275,17 +307,31 @@ export const getOrderStats = async () => {
         token: `Bearer ${store.getState().user.currentUser.accessToken}`,
       },
     });
-    console.log(res.data);
-    return res.data.body;
-  } catch (err) {
-    console.log(err);
+    return res.data;
+  } catch (error) {
+    console.log(error);
+    return error.response.data
   }
 };
 
-export const getSalesPerformance = async (id) => {
+export const getOrderStatsPerProduct = async (id) => {
+  try {
+    const res = await axios.get(BASE_URL + "orders/income?pid=" + id, {
+      headers: {
+        token: `Bearer ${store.getState().user.currentUser.accessToken}`,
+      },
+    });
+    return res.data;
+  } catch (error) {
+    console.log(error);
+    return error.response.data
+  }
+};
+
+export const getSalesPerformancePerProduct = async (id) => {
   try {
     const res = await axios.get(
-      "http://localhost:3030/api/orders/income?pid=" + id,
+      BASE_URL + "orders/alltimePerProduct?pid=" + id,
       {
         headers: {
           token: `Bearer ${store.getState().user.currentUser.accessToken}`,
@@ -297,24 +343,25 @@ export const getSalesPerformance = async (id) => {
       return a._id - b._id;
     });
     return list;
-  } catch (err) {
-    console.log(err);
+  } catch (error) {
+    console.log(error);
+    return error.response.data
   }
 };
 
-export const getAllTimeSales = async (id) => {
+export const getAllTimeSales = async () => {
   try {
     const res = await axios.get(
-      "http://localhost:3030/api/orders/alltime?pid=" + id,
+      BASE_URL + "orders/alltime",
       {
         headers: {
           token: `Bearer ${store.getState().user.currentUser.accessToken}`,
         },
       }
     );
-    console.log(res.data);
-    return res.data.body;
-  } catch (err) {
-    console.log(err);
+    return res.data;
+  } catch (error) {
+    console.log(error);
+    return error.response.data
   }
 };

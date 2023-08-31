@@ -1,27 +1,27 @@
-import Sidebar from "./components/sidebar/Sidebar";
-import Topbar from "./components/topbar/Topbar";
+import Sidebar from "./components/Sidebar";
+import Topbar from "./components/Topbar";
 import "./App.css";
-import Home from "./pages/home/Home";
+import Home from "./pages/Home";
 import {
   BrowserRouter as Router,
   Switch,
   Route,
   Redirect,
 } from "react-router-dom";
-import UserList from "./pages/userList/UserList";
-import User from "./pages/user/User";
-import NewUser from "./pages/newUser/NewUser";
-import ProductList from "./pages/productList/ProductList";
-import Product from "./pages/product/Product";
-import NewProduct from "./pages/newProduct/NewProduct";
-import OrderList from "./pages/orderList/OrderList";
-import Login from "./pages/login/Login";
-import History from "./pages/history/History";
+import UserList from "./pages/UserList";
+import User from "./pages/User";
+import NewUser from "./pages/NewUser";
+import ProductList from "./pages/ProductList";
+import Product from "./pages/Product";
+import NewProduct from "./pages/NewProduct";
+import OrderList from "./pages/OrderList";
+import Login from "./pages/Login";
+import History from "./pages/History";
 import { useSelector } from "react-redux";
-import Contact from "./pages/contact/Contact"
-import Order from "./pages/order/Order"
-import Analytics from "./pages/analytics/Analytics"
-import Sales from "./pages/sales/Sales";
+import Contact from "./pages/Contact"
+import Order from "./pages/Order"
+import Analytics from "./pages/Analytics"
+import Sales from "./pages/Sales";
 
 function App() {
   const admin = useSelector((state) => state.user.currentUser?.isAdmin);
@@ -39,10 +39,10 @@ function App() {
             <div className="container">
               <Sidebar />
               <Route exact path="/">
-                <Home />
+                <Home /> {/* V */}
               </Route>
               <Route path="/users">
-                <UserList />
+                <UserList /> {/* V */}
               </Route>
               <Route path="/user/:userId">
                 <User />
@@ -51,7 +51,7 @@ function App() {
                 <NewUser />
               </Route>
               <Route path="/products">
-                <ProductList />
+                <ProductList /> {/* V */}
               </Route>
               <Route path="/product/:productId">
                 <Product />
@@ -60,19 +60,19 @@ function App() {
                 <NewProduct />
               </Route>
               <Route path="/orders">
-                <OrderList />
+                <OrderList /> {/* V */}
               </Route>
               <Route path="/order/:orderId">
                 <Order />
               </Route>
               <Route path="/history">
-                <History />
+                <History /> {/* V */}
               </Route>
               <Route path="/contact">
                 <Contact />
               </Route>
               <Route path="/sales">
-                <Sales />
+                <Sales /> {/* V */}
               </Route>
               <Route path="/analytics">
                 <Analytics />
