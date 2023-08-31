@@ -3,8 +3,7 @@ import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 import {useDispatch} from "react-redux"
 import { mobile } from "../responsive";
-import { login, register } from "../redux/apiCalls";
-const axios = require("axios")
+import { register } from "../redux/apiCalls";
 
 const Container = styled.div`
   width: 100vw;
@@ -81,8 +80,14 @@ const Register = () => {
           password: pass,
         }
         const response = await register(dispatch, user)
-        if (response.err) {
-          setErr(response.message)
+        if (response.status === 409) {
+          const message = `${response.body.duplicatedField} ${response.body.duplicatedValue} is Already Exists !`
+          setErr(message)
+          return
+        }
+        if (response.status === 500) {
+          const message = `Something Went Wrong !`
+          setErr(message)
           return
         }
         history.push("/")

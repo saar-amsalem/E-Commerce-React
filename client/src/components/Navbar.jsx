@@ -6,6 +6,7 @@ import { mobile } from "../responsive";
 import { useSelector, useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { logout } from "../redux/apiCalls";
+import ClipLoader from "react-spinners/ClipLoader";
 import icon from "../img/icon.jpg";
 
 const Container = styled.div`
@@ -89,12 +90,12 @@ const Navbar = () => {
   
   const dispatch = useDispatch();
   const products = useSelector((state) => state.cart.products);
-  const user = useSelector((state) => state.user);
+  const { currentUser, isFetching }= useSelector((state) => state.user);
   const quantity = useSelector((state) => state.cart.quantity);
   const history = useHistory()
 
   const onClicklogout = async() => {
-    const res = await logout(dispatch, products, user.currentUser._id);
+    const res = await logout(dispatch, products, currentUser._id);
     if (res.err) {
       alert(res.message)
       return
@@ -118,12 +119,12 @@ const Navbar = () => {
           </Link>
         </Center>
         <Right>
-        {user.currentUser?.isAdmin &&<MenuItem>
+        {currentUser?.isAdmin &&<MenuItem>
               <Link href="http://localhost:3001">
                 Admin Dashboard
               </Link>
             </MenuItem>}
-          {user.currentUser ? (
+          {currentUser ? (
             <MenuItem />
           ) : (
             <MenuItem>
@@ -132,7 +133,7 @@ const Navbar = () => {
               </Link>
             </MenuItem>
           )}
-          {user.currentUser ? (
+          {currentUser ? (
             <MenuItem />
           ) : (
             <MenuItem>
@@ -141,12 +142,15 @@ const Navbar = () => {
               </Link>
             </MenuItem>
           )}
-          {!user.currentUser ? (
+          {!currentUser ? (
             <MenuItem />
           ) : (
+            isFetching ? 
+            <ClipLoader loading={true}/>
+            :
             <MenuItem onClick={onClicklogout}>LOGOUT</MenuItem>
           )}
-          {user.currentUser ? (
+          {currentUser ? (
             <>
               <Link href="/cart">
                 <MenuItem>

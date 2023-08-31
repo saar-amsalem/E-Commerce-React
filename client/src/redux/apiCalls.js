@@ -13,13 +13,16 @@ import { store } from "./store";
 
 export const register = async (dispatch, user) => {
   try {
+    console.log(user);
     const newUser = await axios.post("http://localhost:3030/api/auth/register", user)
-    console.log(newUser.data.body);
-    alert("Registerd Successfully !")
-    await login(dispatch, user);
+    console.log("register response !", newUser.data.body);
+    console.log("user for login ! ", { username: user.username, password: user.password })
+    await login(dispatch, { username: user.username, password: user.password });
+    await createCart(newUser.data.body._id)
+    await getCart(dispatch)
     return newUser.data
   } catch (err) {
-    console.log(err.response.data);
+    console.log(err);
     return err.response.data
   }
 }
@@ -29,9 +32,9 @@ export const login = async (dispatch, user) => {
   dispatch(loginStart());
   try {
     const res = await axios.post("http://localhost:3030/api/auth/login", user);
-    dispatch(loginSuccess(res.data.body));
-    const cart = await getCart(); //getting user cart from DB
-    dispatch(loadCart(cart.products)); //if there are products, will update state and show them
+    if (res.status === 200) {
+      dispatch(loginSuccess(res.data.body));
+    }
     return res.data
   } catch (err) {
     dispatch(loginFailure());
@@ -56,6 +59,26 @@ export const logout = async (dispatch, products) => {
 
 export const clearCartData = (dispatch) => {
   dispatch(clearCart());
+};
+
+export const createCart = async (userId) => {
+  try {
+    await axios.post(
+      "http://localhost:3030/api/carts",
+      {
+        userId: userId,
+        products: []
+      },
+      {
+        headers: {
+          token: `Bearer ${store.getState().user.currentUser.accessToken}`,
+        },
+      }
+    );
+  } catch (error) {
+    console.log(error);
+    return error.response.data;
+  }
 };
 
 //save cart
@@ -129,7 +152,7 @@ export const updateCart = async (products) => {
 };
 
 //get cart data
-export const getCart = async () => {
+export const getCart = async (dispatch) => {
   try {
     const res = await axios.get(
       "http://localhost:3030/api/carts/find/" +
@@ -140,8 +163,11 @@ export const getCart = async () => {
         },
       }
     );
+    console.log(res.data);
+    res.status === 200 ? dispatch(loadCart(res.data.body.products)) : dispatch(loadCart([]));
     return res.data;
   } catch (error) {
+    console.log(error);
     return error.response.data;
   }
 };

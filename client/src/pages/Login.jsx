@@ -1,6 +1,6 @@
 import { useState } from "react";
 import styled from "styled-components";
-import { login } from "../redux/apiCalls";
+import { getCart, login } from "../redux/apiCalls";
 import { mobile } from "../responsive";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -80,9 +80,11 @@ const Login = () => {
       return
     }
     const res = await login(dispatch, { username, password });
-    if (res.err) {
-      setErrMessage(res.message)
+    if (res.status !== 200) {
+      setErrMessage("Something Went Wrong !")
+      return
     }
+    await getCart(dispatch)
     socket.emit("display_user", store.getState().user?.currentUser);
   };
   return (

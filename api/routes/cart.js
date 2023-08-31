@@ -10,9 +10,6 @@ const router = require("express").Router();
 //CREATE
 router.post("/",verifyToken,async (req, res) => {
     const response = await cartController.createCart(req.body)
-    if (response.err) {
-      console.log(response.body);
-    }
     res.status(response.status).json(response)
 });
 
@@ -36,12 +33,8 @@ router.delete("/:id", verifyTokenAndAuthorization, async (req, res) => {
 
 //GET USER CART
 router.get("/find/:id", verifyTokenAndAuthorization, async (req, res) => {
-  console.log("cart userId : ", req.params.id);
   const response = await cartController.getCart(req.params.id)
-    if (response.err) {
-      console.log(response.body);
-    }
-    res.status(response.status).json(response)
+  res.status(response.status).json(response)
 });
 
 // //GET ALL

@@ -33,6 +33,9 @@ app.use("/api/carts", cartRoute);
 app.use("/api/orders", orderRoute);
 app.use("/api/checkout", stripeRoute);
 app.use("/api/wishlist",wishlistRoute)
+app.get("/test", (req,res) => {
+  throw new Error("test error !")
+})
 
 const io = new Server(server, {
   cors: {

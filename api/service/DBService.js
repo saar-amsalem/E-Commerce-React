@@ -33,42 +33,12 @@ const dbServices = (model)=>{
     }
 
     const getByParam = async (params)=>{
-        try {
-            const response = await model.findOne({ [params.key]: params.val });
-            return {
-                body: response,
-                err: false
-            }
-        } catch (error) {
-            return {
-                body: error,
-                err: true
-            }
-        }
+        return await model.findOne({ [params.key]: params.val });
     }
 
     const create = async(object)=>{
-        try {
-            const newObject = new model(object)
-            const response = await newObject.save();
-            console.log(response);
-            return {
-                body: response,
-                err: false
-            }
-        } catch (error) {
-            console.log(error);
-            if(error.code === 11000) {
-                return {
-                    body: `${JSON.stringify(error.keyValue)} already exists !`,
-                    err: true
-                }
-            }
-            return {
-                body: error,
-                err: true
-            }
-        }
+        const newObject = new model(object)
+        return await newObject.save();
     }
 
     const createMany = async (objectsArray) => {

@@ -45,7 +45,7 @@ function App() {
                 <UserList /> {/* V */}
               </Route>
               <Route path="/user/:userId">
-                <User />
+                <User /> 
               </Route>
               <Route path="/newUser">
                 <NewUser />

@@ -3,10 +3,8 @@ const cartService = require("../service/cartService");
 const createCart = async (cartToCreate) => { 
     const savedCart = await cartService.create(cartToCreate)
     return {
-        body: savedCart.body,
-        status: savedCart.err ? 500 : 200,
-        err: savedCart.err,
-        ...(savedCart.err ? { message: "Could not Create Cart" } : {})
+        body: savedCart,
+        status: 200,
       }
 }
 
@@ -35,15 +33,16 @@ const deleteCart = async(userId) => {
 }
 
 const getCart = async (userId) => {
-   const cart = await cartService.getByParam({key: "userId", val: userId})
-   if (!cart.body) {
-    return await createCart({ userId: userId, products: [] })
-   }
-   return {
-        body: cart.body,
-        status: cart.err ? 500 : 200,
-        err: cart.err,
-        ...(cart.err ? { message: "No Cart Found !" } : {})
+    const cart = await cartService.getByParam({key: "userId", val: userId})
+    console.log(cart);
+    if (!cart) {
+        return {
+            status: 404
+        }
+    }
+    return {
+        body: cart,
+        status: 200,
     }
 }
 

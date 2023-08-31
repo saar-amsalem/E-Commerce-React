@@ -26,12 +26,9 @@ const verifyToken = (req, res, next) => {
 const verifyTokenAndAuthorization = (req, res, next) => { 
   console.log("in verify and AUTHORIZE !");
   verifyToken(req, res, () => {
-    console.log("user is : "+req.user.id);
-    console.log(req.params.id);
     if (req.user.id === req.params.id || req.user.isAdmin) {
       next();
     } else {
-      console.log("errorrrrrr verifyToken and authorize");
       res.status(401).json("You are not alowed to do that!");
     }
   });
