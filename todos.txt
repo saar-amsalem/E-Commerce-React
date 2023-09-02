@@ -1,6 +1,0 @@
-client - 
-2. check all components and pages responses from apiCalls and validate everything is working 
-3. check css folder and try to move it to styled component
-
-admin - 
-2. check all components and pages responses from apiCalls and validate everything is working
