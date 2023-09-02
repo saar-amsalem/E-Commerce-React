@@ -1,23 +1,28 @@
 import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import ScrollToBottom from "react-scroll-to-bottom";
 import online from "../icons/onlineIcon.png";
+import "./Css/ChatApp.css";
 
-function Chat({ socket, username, room }) {
-  const [currentMessage, setCurrentMessage] = useState("");
+
+function Chat({ socket }) {
   const [messageList, setMessageList] = useState([]);
+  const [currentMessage, setCurrentMessage] = useState("");
+  const params = useParams();
 
   const sendMessage = () => {
     if (currentMessage !== "") {
+      // socket.emit("join_room", params.username)
       const messageData = {
-        room: room,
-        author: username,
+        room: params.username,
+        author: "saar",
         content: currentMessage,
         time:
           new Date(Date.now()).getHours() +
           ":" +
           new Date(Date.now()).getMinutes(),
       };
-
+      console.log(messageData);
       socket.emit("send_message", messageData);
       setMessageList((list) => [...list, messageData]);
       setCurrentMessage("");
@@ -25,24 +30,24 @@ function Chat({ socket, username, room }) {
   };
 
   useEffect(() => {
+    socket.emit("join_room", params.username)
     socket.on("receive_message", (data) => {
-      console.log(data);
+        console.log(data);
       setMessageList((list) => [...list, data]);
-    })
+    });
     socket.on("history", (data) => {
       setMessageList(data)
     })
-    return () => {
-      socket.disconnect()
-    }
+    return () => {}
   }, [socket]);
 
   return (
+    
     <div className="chat-window">
       <div className="chat-header">
         <image className="online-icon" src={online} alt="logo" />
         {/* <p>Welcome to Live Chat </p> */}
-        <p>welcome {username} to live chat</p>
+        <p>welcome to chat with {params.username}</p>
       </div>
       <div className="chat-body">
         <ScrollToBottom className="message-container">
@@ -50,7 +55,7 @@ function Chat({ socket, username, room }) {
             return (
               <div
                 className="message"
-                id={username === messageContent.author ? "you" : "other"}
+                id={"saar" === messageContent.author ? "you" : "other"}
               >
                 <div>
                   <div className="message-content">

@@ -29,7 +29,12 @@ export const login = async (dispatch, user) => {
   } catch (error) {
     console.log(error);
     dispatch(loginFailure());
-    return error.response.data
+    if(error.response) {
+      return error.response.data;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };
 
@@ -39,10 +44,16 @@ export const logoutuser = (dispatch) => {
 
 export const createUser = async (user) => {
   try {
-    await axios.post(BASE_URL + "auth/register", user);
+    const res = await axios.post(BASE_URL + "auth/register", user);
+    return res.data
   } catch (error) {
     console.log(error);
-    return error.response.data
+    if(error.response) {
+      return error.response.data;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };
 
@@ -57,7 +68,12 @@ export const getUsers = async () => {
     return res.data;
   } catch (error) {
     console.log(error);
-    return error.response.data
+    if(error.response) {
+      return error.response.data;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };
 
@@ -71,7 +87,12 @@ export const getFiveNewUsers = async () => {
     return res.data;
   } catch (error) {
     console.log(error);
-    return error.response.data
+    if(error.response) {
+      return error.response.data;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };
 
@@ -82,10 +103,15 @@ export const getUserByID = async (id) => {
         token: `Bearer ${store.getState().user.currentUser.accessToken}`,
       },
     });
-    return res.data.body;
+    return res.data;
   } catch (error) {
     console.log(error);
-    return error.response.data
+    if(error.response) {
+      return error.response.data;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };
 
@@ -96,10 +122,16 @@ export const updateUser = async (userid, obj) => {
         token: `Bearer ${store.getState().user.currentUser.accessToken}`,
       },
     });
-    return res.data.body;
+    console.log(res.data);
+    return res.data;
   } catch (error) {
     console.log(error);
-    return error.response.data
+    if(error.response) {
+      return error.response.data;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };
 
@@ -113,7 +145,12 @@ export const deleteUser = async (userid) => {
     return res.data
   } catch (error) {
     console.log(error);
-    return error.response.data
+    if(error.response) {
+      return error.response.data;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };
 
@@ -124,10 +161,16 @@ export const getUserStats = async () => {
         token: `Bearer ${store.getState().user.currentUser.accessToken}`,
       },
     });
+    res.data.body.sort((a,b) => a._id - b._id)
     return res.data;
   } catch (error) {
     console.log(error);
-    return error.response.data
+    if(error.response) {
+      return error.response.data;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };
 
@@ -141,7 +184,12 @@ export const getOnline = async () => {
     return res.data.body;
   } catch (error) {
     console.log(error);
-    return error.response.data
+    if(error.response) {
+      return error.response.data;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };
 
@@ -152,10 +200,15 @@ export const getProducts = async (dispatch) => {
   try {
     const res = await axios.get(BASE_URL + "products");
     dispatch(getProductSuccess(res.data.body));
+    return res.data
   } catch (error) {
     dispatch(getProductFailure(error.response.data.message));
-    console.log(error.response.data);
-    return error.response.data
+    if(error.response) {
+      return error.response.data;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };
 
@@ -170,8 +223,12 @@ export const deleteProduct = async (id, dispatch) => {
     dispatch(deleteProductSuccess(id));
   } catch (error) {
     dispatch(deleteProductFailure(error.response.data.message));
-    console.log(error.response.data);
-    return error.response.data
+    if(error.response) {
+      return error.response.data;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };
 
@@ -179,16 +236,22 @@ export const updateProduct = async (id, product, dispatch) => {
   dispatch(updateProductStart());
   try {
     // update
-    axios.put(BASE_URL + "products/" + id, product, {
+    const res = await axios.put(BASE_URL + "products/" + id, product, {
       headers: {
         token: `Bearer ${store.getState().user.currentUser.accessToken}`,
       },
     });
     dispatch(updateProductSuccess({ id, product }));
+    console.log(res.data);
+    return res.data
   } catch (error) {
     dispatch(updateProductFailure());
-    console.log(error);
-    return error.response.data
+    if(error.response) {
+      return error.response.data;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };
 
@@ -200,12 +263,31 @@ export const addProduct = async (product, dispatch) => {
         token: `Bearer ${store.getState().user.currentUser.accessToken}`,
       },
     });
-    console.log(res.data);
-    dispatch(addProductSuccess(res.data));
+    dispatch(addProductSuccess(res.data.body));
+    return res.data
   } catch (error) {
     dispatch(addProductFailure());
+    if(error.response) {
+      return error.response.data;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
+  }
+};
+
+export const getCategories = async () => {
+  try {
+    const res = await axios.get(`http://localhost:3030/api/products/categories`);    
+    return res.data
+  } catch (error) {
     console.log(error);
-    return error.response.data
+    if(error.response) {
+      return error.response.data;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };
 
@@ -218,10 +300,18 @@ export const getOrders = async () => {
         token: `Bearer ${store.getState().user.currentUser.accessToken}`,
       },
     });
+    res.data.body.sort((a, b) => {
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    })
     return res.data;
   } catch (error) {
     console.log(error);
-    return error.response.data
+    if(error.response) {
+      return error.response.data;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };
 
@@ -234,7 +324,12 @@ export const deleteOrder = async (id) => {
     });
   } catch (error) {
     console.log(error);
-    return error.response.data
+    if(error.response) {
+      return error.response.data;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };
 
@@ -249,7 +344,12 @@ export const getOrderByUserId = async (id) => {
     return res.data.body;
   } catch (error) {
     console.log(error);
-    return error.response.data
+    if(error.response) {
+      return error.response.data;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };
 
@@ -261,17 +361,20 @@ export const getOrderByOrderId = async (id) => {
       },
     });
     console.log(res.data);
-    return res.data.body;
+    return res.data;
   } catch (error) {
     console.log(error);
-    return error.response.data
+    if(error.response) {
+      return error.response.data;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };
 
 export const updateOrder = async (id, order) => {
   try {
-    console.log(order);
-    console.log(id);
     const res = await axios.put(BASE_URL + "orders/" + id, order, {
       headers: {
         token: `Bearer ${store.getState().user.currentUser.accessToken}`,
@@ -280,7 +383,12 @@ export const updateOrder = async (id, order) => {
     return res.data
   } catch (error) {
     console.log(error);
-    return error.response.data
+    if(error.response) {
+      return error.response.data;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };
 
@@ -296,7 +404,12 @@ export const getFiveNewOrders = async () => {
     return res.data;
   } catch (error) {
     console.log(error);
-    return error.response.data
+    if(error.response) {
+      return error.response.data;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };
 
@@ -310,7 +423,12 @@ export const getOrderStats = async () => {
     return res.data;
   } catch (error) {
     console.log(error);
-    return error.response.data
+    if(error.response) {
+      return error.response.data;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };
 
@@ -324,7 +442,12 @@ export const getOrderStatsPerProduct = async (id) => {
     return res.data;
   } catch (error) {
     console.log(error);
-    return error.response.data
+    if(error.response) {
+      return error.response.data;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };
 
@@ -338,14 +461,15 @@ export const getSalesPerformancePerProduct = async (id) => {
         },
       }
     );
-    console.log(res.data);
-    const list = res.data.sort((a, b) => {
-      return a._id - b._id;
-    });
-    return list;
+    return res.data;
   } catch (error) {
     console.log(error);
-    return error.response.data
+    if(error.response) {
+      return error.response.data;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };
 
@@ -359,9 +483,15 @@ export const getAllTimeSales = async () => {
         },
       }
     );
+    res.data.body.sort((a,b) => a._id - b._id)
     return res.data;
   } catch (error) {
     console.log(error);
-    return error.response.data
+    if(error.response) {
+      return error.response.data;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };

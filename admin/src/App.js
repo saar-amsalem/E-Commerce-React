@@ -23,9 +23,19 @@ import Order from "./pages/Order"
 import Analytics from "./pages/Analytics"
 import Sales from "./pages/Sales";
 
+import io from "socket.io-client";
+import Chat from "./pages/Chat";
+import { useEffect } from "react";
+const socket = io("http://localhost:3031")
+
 function App() {
   const admin = useSelector((state) => state.user.currentUser?.isAdmin);
   console.log(admin);
+  useEffect(()=> {
+    return() => {
+      socket.disconnect()
+    }
+  },[])
   return (
     <Router>
       <Switch>
@@ -35,9 +45,9 @@ function App() {
         {!admin && <Redirect to="/login"/>}
         {admin && (
           <>
-            <Topbar />
+            <Topbar /> {/* V */}
             <div className="container">
-              <Sidebar />
+              <Sidebar /> {/* V */}
               <Route exact path="/">
                 <Home /> {/* V */}
               </Route>
@@ -45,37 +55,40 @@ function App() {
                 <UserList /> {/* V */}
               </Route>
               <Route path="/user/:userId">
-                <User /> 
+                <User /> {/* V */}
               </Route>
               <Route path="/newUser">
-                <NewUser />
+                <NewUser /> {/* V */}
               </Route>
               <Route path="/products">
                 <ProductList /> {/* V */}
               </Route>
               <Route path="/product/:productId">
-                <Product />
+                <Product /> {/* V */}
               </Route>
               <Route path="/newproduct">
-                <NewProduct />
+                <NewProduct /> {/* V */}
               </Route>
               <Route path="/orders">
                 <OrderList /> {/* V */}
               </Route>
               <Route path="/order/:orderId">
-                <Order />
+                <Order /> {/* V */}
               </Route>
               <Route path="/history">
                 <History /> {/* V */}
               </Route>
               <Route path="/contact">
-                <Contact />
+                <Contact /> {/* V */}
               </Route>
               <Route path="/sales">
                 <Sales /> {/* V */}
               </Route>
               <Route path="/analytics">
-                <Analytics />
+                <Analytics socket={socket}/>
+              </Route>
+              <Route path="/chat/:username">
+                <Chat socket={socket}/>
               </Route>
             </div>
           </>

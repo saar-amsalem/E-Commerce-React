@@ -83,9 +83,17 @@ export default function WidgetLg() {
   useEffect(() => {
     const getOr = async () => {
       const res = await getFiveNewOrders();
-      if (res.err) {
-        alert(res.message);
-        return;
+      if (res.status === 499) {
+        alert("Invalid Token, please try to reconnect !")
+        return
+      }
+      if (res.status === 404) {
+        alert("no orders found !")
+        return
+      }
+      if (res.status !== 200) {
+        alert("An unexpected error occured, please try again !")
+        return
       }
       setOrders(res.body);
     };

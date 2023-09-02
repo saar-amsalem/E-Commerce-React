@@ -54,24 +54,56 @@ const ProductList = () => {
   useEffect(() => {
     const getAllProducts = async () => {
       const res = await getProducts()
-      if (res.err) {
-        alert(res.message)
+      if (res.status === 499) {
+        const message = `Your token expired, please try to reconnect !`
+        alert(message)
         return
       }
-      console.log(res.body);
+      if (res.status !== 200) {
+        const message = `An unexpected error occured, please try again !`
+        alert(message)
+        return
+      }
       setProducts(res.body);      
     };
     getAllProducts();
   }, []);
 
   useEffect(()=> {
+    const getWish = async () => {
+      const res = await getWishlist();
+      if (res.status === 499) {
+        const message = `Your token expired, please try to reconnect !`
+        alert(message)
+        return
+      }
+      if (res.status !== 200) {
+        const message = `An unexpected error occured, please try again !`
+        alert(message)
+        return
+      }
+      const wishlistedProductsIds = res.body.products.map(item => item.productId)
+      setWishlist(wishlistedProductsIds)
+    }
+    getWish();
+    return () => {}
+  },[])
+
+  useEffect(()=> {
     const getCategories = async () => {
       const res = await getAllCategories()
-      console.log(res);
-      if (!res.err) {
-        console.log(res.body);
-        setCategories(res.body)
+      if (res.status === 499) {
+        const message = `Your token expired, please try to reconnect !`
+        alert(message)
+        return
       }
+      if (res.status !== 200) {
+        const message = `An unexpected error occured, please try again !`
+        alert(message)
+        return
+      }
+      console.log(res.body);
+      setCategories(res.body)
     }
     getCategories()
     return () => {}
@@ -90,21 +122,7 @@ const ProductList = () => {
     });
   };
 
-  useEffect(()=> {
-    const getWish = async () => {
-      const res = await getWishlist();
-      if (!res.err) {
-        const wishlistedProductsIds = res.body.products.map(item => item.productId)
-        setWishlist(wishlistedProductsIds)
-      }
-    }
-    getWish();
-    return () => {}
-  },[])
-
-  useEffect(()=> {
-    console.log(filters);
-  },[filters])
+  
 
   return (
     <Container>

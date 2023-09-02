@@ -49,11 +49,22 @@ export default function NewProduct() {
   const [inputs, setInputs] = useState({});
   const dispatch = useDispatch();
   const history = useHistory();
+  const colors = ["White", "Black", "Red", "Blue", "Yellow", "Green"]
+  const sizes = ["XS", "S", "M", "L", "XL"]
+  const [categoryToAdd, setCategoryToAdd] = useState("")
 
-  const handleClick = (e) => {
+  const handleClick = async(e) => {
     e.preventDefault();
     console.log(inputs);
-    addProduct(inputs, dispatch);
+    const res = await addProduct(inputs, dispatch);
+    if (res.status === 499) {
+      alert("Invalid token, please try to reconnect !")
+      return
+    }
+    if (res.status !== 200) {
+      alert("An unexpected error occured, please try again !")
+      return
+    }
     history.push("/products");
   };
 
@@ -98,7 +109,7 @@ export default function NewProduct() {
         <AddProductItem>
           <AddProductLabel>Size</AddProductLabel>
           <span>
-            {["XS", "S", "M", "L", "XL"].map((size) => (
+            {sizes.map((size) => (
               <React.Fragment key={size}>
                 {size}&ensp;
                 <input
@@ -126,30 +137,31 @@ export default function NewProduct() {
         </AddProductItem>
         <AddProductItem>
           <AddProductLabel>Categories</AddProductLabel>
-          <span>
-            {["Men", "Jeans", "Women"].map((category) => (
-              <React.Fragment key={category}>
-                {category}&ensp;
-                <input
+          <input type="text"
+                  placeholder={"type category to be added"}
+                  onChange={(e) => {
+                    setCategoryToAdd(e.target.value)
+                  }}/>
+          <input
                   type="checkbox"
-                  placeholder={category.toLowerCase()}
-                  onChange={(e) =>
+                  placeholder={"type category to be added"}
+                  onClick= {(e) => {
                     e.target.checked
-                      ? setInputs({
+                     && setInputs({
                           ...inputs,
                           categories: inputs.categories
-                            ? [...inputs.categories, e.target.placeholder]
-                            : [e.target.placeholder],
+                            ? [...inputs.categories, categoryToAdd]
+                            : [categoryToAdd],
                         })
-                      : setInputs({
-                          ...inputs,
-                          categories: inputs.categories.filter(
-                            (obj) => obj !== e.target.placeholder
-                          ),
-                        })
+                      e.target.checked = false;
+                    }
                   }
                 />
-                &emsp;
+          <span>
+            Current Categories : 
+            {inputs.categories?.map((category) => (
+              <React.Fragment key={category}>
+                {category}, 
               </React.Fragment>
             ))}
           </span>
@@ -157,7 +169,7 @@ export default function NewProduct() {
         <AddProductItem>
           <AddProductLabel>Color</AddProductLabel>
           <span>
-            {["White", "Black", "Red", "Blue", "Yellow", "Green"].map(
+            {colors.map(
               (color) => (
                 <React.Fragment key={color}>
                   {color}&ensp;

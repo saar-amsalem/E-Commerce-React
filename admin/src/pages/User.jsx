@@ -161,14 +161,30 @@ const User = () => {
   useEffect(() => {
     const getUSR = async () => {
       const res = await getUserByID(params.userId);
-      setUser(res);
+      if (res.status === 499) {
+        alert("Invalid token, please try to reconnect !")
+        return
+      }
+      if (res.status === 404) {
+        alert("No user found with this ID !")
+        return
+      }
+      if (res.status !== 200) {
+        alert("An unexpected error occured, please try again !")
+        return
+      }
+      setUser(res.body);
     };
     getUSR();
   }, []);
 
-  const clickHandler = (e) => {
+  const clickHandler = async(e) => {
     e.preventDefault();
-    updateUser(params.userId, user);
+    const res = await updateUser(params.userId, user);
+    if(res.status !== 200) {
+      alert("An unexpected error occured, please try again !")
+      return
+    }
     alert("Updated Successfully !");
     history.push("/users");
   };

@@ -6,6 +6,7 @@ import {
   getSalesPerformancePerProduct,
   updateProduct,
   getAllTimeSales,
+  getCategories,
 } from "../redux/apiCalls";
 import styled from "styled-components";
 
@@ -165,9 +166,10 @@ export default function Product() {
   );
   const [updated, setUpdated] = useState({ _id: product._id });
   const dispatch = useDispatch();
-  const [sizetoupdated, setSizetoupdated] = useState([]);
-  const [colors, setColors] = useState([]);
+  const sizeOptions = ['XS', 'S', 'M', 'L', 'XL']
+  const colorOptions = ['White', 'Black', 'Red', 'Blue', 'Yellow', 'Green']
   const [categories,setCategories] = useState([])
+
   const MONTHS = useMemo(
     () => [
       "Jan",
@@ -186,10 +188,46 @@ export default function Product() {
     []
   );
 
+  useEffect(()=> {
+    const fetchCategories = async () => {
+      const res = await getCategories()
+      if (res.status === 499) {
+        alert("Invalid token, please try to reconnect !")
+        return
+      }
+      if (res.status === 404) {
+        alert("No Categories found !")
+        return
+      }
+      if (res.status !== 200) {
+        alert("An unexpected error occured, please try again !")
+        return
+      }
+      setCategories(res.body)
+    }
+    fetchCategories()
+    return () => {}
+  },[])
+
   useEffect(() => {
     const getStats = async () => {
-      const list = await getSalesPerformancePerProduct(productId);
-      list.map((item) =>
+      const res = await getAllTimeSales(productId);
+      if (res.status === 499) {
+        alert("Invalid token, please try to reconnect !")
+        return
+      }
+      if (res.status === 404) {
+        alert("No sales found on this product !")
+        return
+      }
+      if (res.status !== 200) {
+        alert("An unexpected error occured, please try again !")
+        return
+      }
+      const list = res.body.sort((a, b) => {
+        return a._id - b._id;
+      });
+      list?.map((item) =>
         setPStats((prev) => [
           ...prev,
           { name: MONTHS[item._id - 1], Sales: item.total },
@@ -197,20 +235,41 @@ export default function Product() {
       );
     };
     getStats();
-  }, [productId, MONTHS]);
+    return () => {}
+  }, [MONTHS]);
 
   useEffect(() => {
     const getAlltime = async () => {
-      const res = await getAllTimeSales(productId);
-      setAlltime(res[0]?.total);
+      const res = await getSalesPerformancePerProduct(productId);
+      if (res.status === 499) {
+        alert("Invalid token, please try to reconnect !")
+        return
+      }
+      if (res.status === 404) {
+        alert("No sales found on this product !")
+        return
+      }
+      if (res.status !== 200) {
+        alert("An unexpected error occured, please try again !")
+        return
+      }
+      setAlltime(res.body[0]?.total);
     };
-    console.log(product);
     getAlltime();
+    return () => {}
   }, []);
 
-  const handleClick = (e) => {
+  const handleClick = async(e) => {
     e.preventDefault();
-    updateProduct(product._id, updated, dispatch);
+    const res = await updateProduct(product._id, updated, dispatch);
+    if (res.status === 499) {
+      alert("Invalid token, please try to reconnect !")
+      return
+    }
+    if (res.status !== 200) {
+      alert("An unexpected error occured, please try again !")
+      return
+    }
     history.push("/products");
   };
 
@@ -279,7 +338,7 @@ export default function Product() {
             />
             <label>Size</label>
             <span>
-                {['XS', 'S', 'M', 'L', 'XL'].map((size) => (
+                {sizeOptions?.map((size) => (
                   <React.Fragment key={size}>
                     {size} &ensp;
                     <input
@@ -304,16 +363,16 @@ export default function Product() {
                 ))}
                 <div>
                   &emsp; <label className="current">current sizes:</label> &ensp;
-                  {product.size.map((obj) => (
+                  {product?.size?.map((obj) => (
                     <label className="currentItem" key={obj}>
-                      {obj}
+                      {obj},
                     </label>
                   ))}
                 </div>
               </span>
             <label>Color</label>
             <span>
-                {['White', 'Black', 'Red', 'Blue', 'Yellow', 'Green'].map((color) => (
+                {colorOptions?.map((color) => (
                   <React.Fragment key={color}>
                     {color} &ensp;
                     <input
@@ -338,16 +397,16 @@ export default function Product() {
                 ))}
                 <div>
                   &emsp; <label className="current">current colors:</label> &ensp;
-                  {product.color.map((obj) => (
+                  {product.color?.map((obj) => (
                     <label className="currentItem" key={obj}>
-                      {obj}
+                      {obj},
                     </label>
                   ))}
                 </div>
             </span>
             <label>Categories</label>
             <span>
-                {categories.map((color) => (
+                {categories?.map((color) => (
                   <React.Fragment key={color}>
                     {color} &ensp;
                     <input
@@ -357,13 +416,13 @@ export default function Product() {
                         e.target.checked
                           ? setUpdated({
                               ...updated,
-                              color: updated.color
-                                ? [...updated.color, e.target.placeholder]
+                              categories: updated.categories
+                                ? [...updated.categories, e.target.placeholder]
                                 : [e.target.placeholder],
                             })
                           : setUpdated({
                               ...updated,
-                              color: updated.color.filter((obj) => obj !== e.target.placeholder),
+                              categories: updated.categories.filter((obj) => obj !== e.target.placeholder),
                             })
                       }
                     />
@@ -371,10 +430,10 @@ export default function Product() {
                   </React.Fragment>
                 ))}
                 <div>
-                  &emsp; <label className="current">current colors:</label> &ensp;
-                  {product.color.map((obj) => (
+                  &emsp; <label className="current">current categories:</label> &ensp;
+                  {product.categories?.map((obj) => (
                     <label className="currentItem" key={obj}>
-                      {obj}
+                      {obj},
                     </label>
                   ))}
                 </div>

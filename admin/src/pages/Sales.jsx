@@ -37,9 +37,16 @@ const Sales = () => {
   useEffect(() => {
     const getStats = async () => {
         const res = await getAllTimeSales();
-        console.log(res);
-        if (res.err) {
-          alert(res.message)
+        if (res.status === 499) {
+          alert("Invalid Token, please try to reconnect !")
+          return
+        }
+        if (res.status === 404) {
+          alert("no sales stats found !")
+          return
+        }
+        if (res.status !== 200) {
+          alert("An unexpected error occured, please try again !")
           return
         }
         res.body.map((item) =>

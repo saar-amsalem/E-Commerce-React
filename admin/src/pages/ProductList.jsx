@@ -45,7 +45,19 @@ export default function ProductList() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        await getProducts(dispatch);
+        const res = await getProducts(dispatch);
+        if (res.status === 499) {
+          alert("Invalid Token, please try to reconnect !")
+          return
+        }
+        if (res.status === 404) {
+          alert("no products found !")
+          return
+        }
+        if (res.status !== 200) {
+          alert("An unexpected error occured, please try again !")
+          return
+        }
       } catch (error) {
         console.log(error);
         alert(message)

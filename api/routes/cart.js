@@ -16,19 +16,13 @@ router.post("/",verifyToken,async (req, res) => {
 //UPDATE
 router.put("/:id", verifyTokenAndAuthorization, async (req, res) => {
   const response = await cartController.updateCart(req.params.id,req.body)
-    if (response.err) {
-      console.log(response.body);
-    }
-    res.status(response.status).json(response)
+  res.status(response.status).json(response)
 });
 
 //DELETE
 router.delete("/:id", verifyTokenAndAuthorization, async (req, res) => {
   const response = await cartController.deleteCart(req.params.id)
-    if (response.err) {
-      console.log(response.body);
-    }
-    res.status(response.status).json(response)
+  res.status(response.status).json(response)
 });
 
 //GET USER CART
@@ -40,10 +34,7 @@ router.get("/find/:id", verifyTokenAndAuthorization, async (req, res) => {
 // //GET ALL
 router.get("/", verifyTokenAndAdmin, async (req, res) => {
   const response = await cartController.getAllCarts()
-    if (response.err) {
-      console.log(response.body);
-    }
-    res.status(response.status).json(response)
+  res.status(response.status).json(response)
 });
 
 module.exports = router;

@@ -6,23 +6,19 @@ router.post("/payment", (req, res) => {
   stripe.charges.create(
     {
       source: req.body.tokenId,
-      amount: req.body.amount,
+      amount: Math.round(req.body.amount),
       currency: "usd",
     },
     (stripeErr, stripeRes) => {
       if (stripeErr) {
         console.log(stripeErr);
         res.json({
-          body: stripeErr,
-          status: 403,
-          err: true,
-          message: "Payment is unsecceeded !" 
+          status: 403
         })
       } else {
         res.json({
           body: stripeRes,
           status: 200,
-          err: false
         })
       }
     }

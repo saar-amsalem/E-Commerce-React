@@ -10,6 +10,8 @@ import { useState } from "react";
 import { updateUserInDB } from "../redux/apiCalls";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
+import OrderHistory from "../components/OrderHistory";
+import { useHistory } from "react-router-dom/cjs/react-router-dom";
 
 const User = styled.div`
     flex: 4;
@@ -19,7 +21,9 @@ const User = styled.div`
 const UserTitleContainer = styled.div`
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
+    width: 100%;
+    font-size: 60px;
 `;
 
 const UserAddButton = styled.button`
@@ -155,14 +159,21 @@ const UserUpdateButton = styled.button`
 
     const user = useSelector((state) => state.user.currentUser)
     const [userToUpdate, setUserToUpdate] = useState({})
+    const history = useHistory()
     const dispatch = useDispatch()
   
     const clickHandler = async (e)=> {
       e.preventDefault();
       console.log(user._id);
       const updatedUser = await updateUserInDB(dispatch, user._id ,userToUpdate)
-      if (updatedUser.err) {
-        alert(updatedUser.message)
+      if (updatedUser.status === 499) {
+        const message = `Your token expired, please try to reconnect !`
+        alert(message)
+        return
+      }
+      if (updatedUser.status !== 200) {
+        const message = `An unexpected error occred, please try again !`
+        alert(message)
         return
       }
       console.log(updatedUser);
@@ -172,6 +183,9 @@ const UserUpdateButton = styled.button`
   
     return (
       <User>
+        <UserUpdateButton onClick={()=> history.push("/")}>
+          Back Home
+        </UserUpdateButton>
         <UserTitleContainer>
             Edit User
         </UserTitleContainer>
@@ -258,6 +272,10 @@ const UserUpdateButton = styled.button`
             </UserUpdateForm>
           </UserUpdate>
         </UserContainer>
+        <UserTitleContainer>
+            Order History
+        </UserTitleContainer>
+        <OrderHistory />
       </User>
     );
   }

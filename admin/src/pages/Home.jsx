@@ -39,8 +39,16 @@ export default function Home() {
   useEffect(() => {
     const getStats = async () => {
         const res = await getUserStats();
-        if (res.err) {
-          alert(res.message)
+        if (res.status === 499) {
+          alert("Invalid Token, please try to reconnect !")
+          return
+        }
+        if (res.status === 404) {
+          alert("no user stats found !")
+          return
+        }
+        if (res.status !== 200) {
+          alert("An unexpected error occured, please try again !")
           return
         }
         res.body.map((item) =>

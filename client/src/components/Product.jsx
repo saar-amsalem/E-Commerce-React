@@ -6,6 +6,8 @@ import {
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { updateWishlist,deleteWishlist } from "../redux/apiCalls";
+import { useSelector } from "react-redux";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 const Info = styled.div`
   opacity: 0;
@@ -84,14 +86,24 @@ const Link = styled.a`
 const Product = ({ item, wishlisted }) => {
 
   const [inWishList, setInWishList] = useState(wishlisted)
-
+  const user = useSelector(state => state.user.currentUser)
+  const history = useHistory()
   const clickHandler = async() => {
+      if(!user) {
+        history.push("/login")
+      }
       if (!inWishList)
       {
         const res = await updateWishlist({ productId: item._id})
         console.log(res);
-        if(res.err) {
-          alert(res.err.message)
+        if (res.status === 499) {
+          const message = `Your token expired, please try to reconnect !`
+          alert(message)
+          return
+        }
+        if (res.status !== 200) {
+          const message = `An unexpected error occured, please try again !`
+          alert(message)
           return
         }
         setInWishList(true)
@@ -100,9 +112,14 @@ const Product = ({ item, wishlisted }) => {
       {
         const res = await deleteWishlist({ productId: item._id})
         console.log(res);
-        if(res.err) {
-          console.log(res.body);
-          alert(res.message)
+        if (res.status === 499) {
+          const message = `Your token expired, please try to reconnect !`
+          alert(message)
+          return
+        }
+        if (res.status !== 200) {
+          const message = `An unexpected error occured, please try again !`
+          alert(message)
           return
         }
         setInWishList(false)

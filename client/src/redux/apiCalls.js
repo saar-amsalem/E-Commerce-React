@@ -15,15 +15,19 @@ export const register = async (dispatch, user) => {
   try {
     console.log(user);
     const newUser = await axios.post("http://localhost:3030/api/auth/register", user)
-    console.log("register response !", newUser.data.body);
-    console.log("user for login ! ", { username: user.username, password: user.password })
     await login(dispatch, { username: user.username, password: user.password });
+    await createWishlist([])
     await createCart(newUser.data.body._id)
     await getCart(dispatch)
     return newUser.data
-  } catch (err) {
-    console.log(err);
-    return err.response.data
+  } catch (error) {
+    console.log(error);
+    if(error.response) {
+      return error.response;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 }
 
@@ -35,23 +39,34 @@ export const login = async (dispatch, user) => {
     if (res.status === 200) {
       dispatch(loginSuccess(res.data.body));
     }
+    await getCart(dispatch)
     return res.data
-  } catch (err) {
+  } catch (error) {
     dispatch(loginFailure());
-    return err.response.data;
+    if(error.response) {
+      return error.response;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };
 
 export const logout = async (dispatch, products) => {
   try {
     dispatch(logoutStart())
-    await getCart(); //get user's cart data
-    await updateCart(products);
+    const res = await updateCart(products);
     dispatch(clearCart());
     dispatch(logoutfromuser());
+    return res
   } catch (error) {
     dispatch(logoutFailure())
-    return error.response.data;
+    if(error.response) {
+      return error.response;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };
 
@@ -77,7 +92,12 @@ export const createCart = async (userId) => {
     );
   } catch (error) {
     console.log(error);
-    return error.response.data;
+    if(error.response) {
+      return error.response;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };
 
@@ -111,13 +131,17 @@ export const saveCarttoDB = async (products) => {
       }
     );
   } catch (error) {
-    return error.response.data;
+    if(error.response) {
+      return error.response;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };
 
 //update cart
 export const updateCart = async (products) => {
-  console.log(products);
   let temp = [];
   products.forEach((item) => {
     temp.push({
@@ -146,8 +170,15 @@ export const updateCart = async (products) => {
       }
     );
     console.log(res.data);
+    return res.data
   } catch (error) {
-    return error.response.data;
+    console.log(error);
+    if(error.response) {
+      return error.response;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };
 
@@ -168,7 +199,12 @@ export const getCart = async (dispatch) => {
     return res.data;
   } catch (error) {
     console.log(error);
-    return error.response.data;
+    if(error.response) {
+      return error.response;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };
 
@@ -180,7 +216,13 @@ export const deleteCart = async (id) => {
       },
     });
   } catch (error) {
-    return error.response.data;
+    console.log(error);
+    if(error.response) {
+      return error.response;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };
 
@@ -195,8 +237,33 @@ export const addOrder = async (order) => {
       },
     });
     return res.data
-  } catch (err) {
-    return err.response.data;
+  } catch (error) {
+    console.log(error);
+    if(error.response) {
+      return error.response;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
+  }
+};
+
+export const getOrdersForUser = async (userId) => {
+  try {
+    const res = await axios.get("http://localhost:3030/api/orders/find/" + userId, {
+      headers: {
+        token: `Bearer ${store.getState().user.currentUser.accessToken}`,
+      },
+    });
+    console.log(res);
+    return res.data
+  } catch (error) {
+    if(error.response) {
+      return error.response;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };
 
@@ -206,7 +273,13 @@ export const getProducts = async () => {
     const res = await axios.get(`http://localhost:3030/api/products`);
     return res.data;
   } catch (error) {
-    return error.response.data;
+    console.log(error);
+    if(error.response) {
+      return error.response;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };
 
@@ -215,7 +288,13 @@ export const getProductById = async (id) => {
     const res = await axios.get(`http://localhost:3030/api/products/find/${id}`);
     return res.data;
   } catch (error) {
-    return error.response.data;
+    console.log(error);
+    if(error.response) {
+      return error.response;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 }
 
@@ -224,7 +303,13 @@ export const getAllCategories = async () => {
     const res = await axios.get(`http://localhost:3030/api/products/categories`);    
     return res.data
   } catch (error) {
-    return error.response.data;
+    console.log(error);
+    if(error.response) {
+      return error.response;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 }
 
@@ -235,7 +320,12 @@ export const getRecommendedProducts = async (category) => {
     return res.data
   } catch (error) {
     console.log(error);
-    return error.response.data;
+    if(error.response) {
+      return error.response;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 }
 
@@ -251,7 +341,13 @@ export const getWishlist = async () => {
     });
     return res.data
   } catch (error) {
-    return error.response.data;
+    console.log(error);
+    if(error.response) {
+      return error.response;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 }
 
@@ -268,21 +364,32 @@ export const createWishlist = async (body) => {
     });
     return res.data
   } catch (error) {
-    return error.response.data;
+    if(error.response) {
+      return error.response;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 }
 
 export const updateWishlist = async (product) => {
   try {
-    console.log(product);
     const res = await axios.post("http://localhost:3030/api/wishlist/add/"+store.getState().user.currentUser._id,product,{
       headers: {
         token: `Bearer ${store.getState().user.currentUser.accessToken}`,
       },
     });
+    console.log(res.data);
     return res.data
   } catch (error) {
-    return error.response.data;
+    console.log(error);
+    if(error.response) {
+      return error.response;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 }
 
@@ -297,7 +404,13 @@ export const deleteWishlist = async (product) => {
     console.log(res.data);
     return res.data
   } catch (error) {
-    return error.response.data;
+    console.log(error);
+    if(error.response) {
+      return error.response;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 }
 
@@ -312,8 +425,14 @@ export const getUserById = async () => {
       },
     });
     return res.data
-  } catch (err) {
-    return err.response.data;
+  } catch (error) {
+    console.log(error);
+    if(error.response) {
+      return error.response;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };
 
@@ -327,8 +446,14 @@ export const updateUserInDB = async (dispatch, userid, obj) => {
     });
     dispatch(updateUser(res.data.body))
     return res.data;
-  } catch (err) {
-    return err.response.data;
+  } catch (error) {
+    console.log(error);
+    if(error.response) {
+      return error.response;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };
 
@@ -341,8 +466,13 @@ export const pay = async (stripeToken, amount) => {
     const res = await axios.post("http://localhost:3030/api/checkout/payment", { tokenId: stripeToken, amount: amount} )
     console.log(res.data.body);
     return res.data
-  } catch (err) {
-    console.log(err.response.data);
-    return err.response.data;
+  } catch (error) {
+    console.log(error);
+    if(error.response) {
+      return error.response;
+    }
+    if (error.request) {
+      return { ...error.request.data, status: 400 }
+    }
   }
 };

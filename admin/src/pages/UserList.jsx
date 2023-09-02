@@ -45,9 +45,16 @@ const UserList = () => {
   useEffect(() => {
     const getUser = async () => {
       const res = await getUsers()
-      console.log(res);
-      if (res.err) {
-        alert(res.message)
+      if (res.status === 499) {
+        alert("Invalid Token, please try to reconnect !")
+        return
+      }
+      if (res.status === 404) {
+        alert("no users found !")
+        return
+      }
+      if (res.status !== 200) {
+        alert("An unexpected error occured, please try again !")
         return
       }
       res.body.map(element => {

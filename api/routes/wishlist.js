@@ -11,9 +11,6 @@ const router = require("express").Router();
 
 router.post("/",verifyToken, async (req,res)=> {
     const response = await wishlistController.createWishList(req.body)
-    if (response.err) {
-      console.log(response.body);
-    }
     res.status(response.status).json(response)
 })
 

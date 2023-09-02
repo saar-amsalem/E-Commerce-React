@@ -9,12 +9,9 @@ const cartRoute = require("./routes/cart");
 const orderRoute = require("./routes/order");
 const stripeRoute = require("./routes/stripe");
 const wishlistRoute = require("./routes/wishlist")
+require("./socketServer")
 const cors = require("cors");
-const http = require("http");
-const { Server } = require("socket.io");
 app.use(cors());
-
-const server = http.createServer(app);
 
 
 mongoose
@@ -33,37 +30,8 @@ app.use("/api/carts", cartRoute);
 app.use("/api/orders", orderRoute);
 app.use("/api/checkout", stripeRoute);
 app.use("/api/wishlist",wishlistRoute)
-app.get("/test", (req,res) => {
-  throw new Error("test error !")
-})
-
-const io = new Server(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"],
-  },
-});
-
-io.on("connection", (socket) => {
-  console.log(`User Connected: ${socket.id}`);
-
-  socket.on("join_room", (data) => {
-    socket.join(data);
-    console.log(`User with ID: ${socket.id} joined room: ${data}`);
-  });
-
-  socket.on("send_message", (data) => {
-    socket.to(data.room).emit("receive_message", data);
-  });
-
-  socket.on("disconnect", () => {
-    console.log("User Disconnected", socket.id);
-    socket.disconnect()
-  });
-});
 
 
-
-server.listen(process.env.PORT || 5000, () => {
+app.listen(process.env.PORT || 5000, () => {
   console.log(`Backend server is running on Port: ${process.env.PORT}`);
 });

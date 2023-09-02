@@ -2,38 +2,19 @@ const dbServices = (model)=>{
 
 
     const getAll = async ()=>{
-        try {
-            const response = await model.find()
-            return {
-                body: response,
-                err: false
-            }
-        } catch (error) {
-            return {
-                body: error,
-                err: true
-            }
-        }
-        
+        return await model.find()
     }
 
     const getByID = async (id)=>{
-        try {
-            const response = await model.findById(id);
-            return {
-                body: response,
-                err: false
-            }
-        } catch (error) {
-            return {
-                body: error,
-                err: true
-            }
-        }
+        return await model.findById(id);
     }
 
     const getByParam = async (params)=>{
         return await model.findOne({ [params.key]: params.val });
+    }
+
+    const getManyByParam = async (params)=>{
+        return await model.find({ [params.key]: params.val });
     }
 
     const create = async(object)=>{
@@ -42,111 +23,46 @@ const dbServices = (model)=>{
     }
 
     const createMany = async (objectsArray) => {
-        try {
-            const response = await model.collection.insertMany(objectsArray)
-            return {
-                body: response,
-                err: false
-            }
-        } catch (error) {
-            return {
-                body: error,
-                err: true
-            }
-        }
+        return await model.collection.insertMany(objectsArray)
     }
 
     const update = async (id,object) =>{
-        try {
-            const response = await model.findByIdAndUpdate( 
+        return await model.findByIdAndUpdate( 
                 id,
                 {
                     $set: object,
                 },
                 {new:true}
             )
-            return {
-                body: response,
-                err: false
-            }
-        } catch (error) {
-            return {
-                body: error,
-                err: true
-            }
-        }
     }
 
     const updateByParam = async(params , object) => {
-        try {
-            const response = await model.findOneAndUpdate(
-                { [params.key]: params.val }, 
-                {
-                    $set: object,
-                },
-                {new:true}
-            )
-            return {
-                body: response,
-                err: false
-            }
-        } catch (error) {
-            return {
-                body: error,
-                err: true
-            }
-        }
+        return await model.findOneAndUpdate(
+            { [params.key]: params.val }, 
+            {
+                $set: object,
+            },
+            {new:true}
+        )
     }
 
     const remove = async (id) => {
-        try {
-            const response = await model.findByIdAndDelete({_id: id});
-            return {
-                body: response,
-                err: false
-            }
-        } catch (error) {
-            return {
-                body: error,
-                err: true
-            }
-        }
+        return await model.findByIdAndDelete({_id: id});
     };
 
     const removeByParam = async (params) => {
-        try {
-            const response = await model.findOneAndDelete({ [params.key]: params.val });
-            return {
-                body: response,
-                err: false
-            }
-        } catch (error) {
-            return {
-                body: error,
-                err: true
-            }
-        }
+        return await model.findOneAndDelete({ [params.key]: params.val });
     };
 
     const removeAll = async () =>{
-        try {
-            const response = await model.deleteMany()
-            return {
-                body: response,
-                err: false
-            }
-        } catch (error) {
-            return {
-                body: error,
-                err: true
-            }
-        }
+        return await model.deleteMany()    
     }
 
     return {
         getAll,
         getByID,
         getByParam,
+        getManyByParam,
         create,
         createMany,
         update,

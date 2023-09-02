@@ -96,8 +96,13 @@ const Navbar = () => {
 
   const onClicklogout = async() => {
     const res = await logout(dispatch, products, currentUser._id);
-    if (res.err) {
-      alert(res.message)
+    if (res.status === 499) {
+      const message = `Your token expired, please try to reconnect !`
+      alert(message)
+      return
+    }
+    if (res.status !== 200) {
+      alert("An unexpected error occured when trying to logout, please try again !")
       return
     }
     alert("logged out successfully !");

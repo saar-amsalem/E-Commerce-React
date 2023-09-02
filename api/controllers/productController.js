@@ -3,70 +3,84 @@ const productService = require("../service/productService")
 const createProduct = async(productToCreate) => {
     const product = await productService.create(productToCreate)
     return {
-        body: product.body,
-        status: product.err ? 500 : 200,
-        err: product.err,
-        ...(product.err ? { message: "Could not Create Product" } : {})
+        body: product,
+        status: 200,
     }
 }
 
 const updateProduct = async(id,productToUpdate) => {
     const updatedProduct = await productService.update(id,productToUpdate);
     return {
-        body: updatedProduct.body,
-        status: updatedProduct.err ? 500 : 200,
-        err: updatedProduct.err,
-        ...(updatedProduct.err ? { message: "Could not Update Product" } : {})
+        body: updatedProduct,
+        status: 200,
     }
 }
 
 const deleteProduct = async (id) => {
     const deleteResponse = await productService.remove(id)
     return {
-        body: deleteResponse.body,
-        status: deleteResponse.err ? 500 : 200,
-        err: deleteResponse.err,
-        ...(deleteResponse.err ? { message: "Could not Delete Product !" } : {})
+        body: deleteResponse,
+        status: 200,
     }
 }
 
 const getProduct = async (id) => {
-    const product = await productService.getByID(id)
-    return {
-        body: product.body,
-        status: product.err ? 500 : 200,
-        err: product.err,
-        ...(product.err ? { message: "Could not Find Product !" } : {})
+    try {
+        const product = await productService.getByID(id)
+        if (!product) {
+            return {
+                status: 404
+            }
+        }
+        return {
+            body: product,
+            status: 200,
+        }
+    } catch (error) {
+        if(error.name === "CastError") {
+            return {
+                status: 400
+            }
+        }
     }
 }
 
 const getAllProducts = async () => {
     const products = await productService.getAll()
+    if (!products) {
+        return {
+            status: 404
+        }
+    }
     return {
-        body: products.body,
-        status: products.err ? 500 : 200,
-        err: products.err,
-        ...(products.err ? { message: "No Products Found !" } : {})
+        body: products,
+        status: 200,
     }
 }
 
 const getCategories = async () => {
     const categories = await productService.getCategories()
+    if (!categories) {
+        return {
+            status: 404
+        }
+    }
     return {
-        body: categories.body,
-        status: categories.err ? 500 : 200,
-        err: categories.err,
-        ...(categories.err ? { message: "No Products Found, No Categories !" } : {})
+        body: categories,
+        status: 200,
     }
 }
 
 const getRecommendedProducts = async (category) => {
     const recommended = await productService.getRecommendedProducts(category)
+    if (!recommended) {
+        return {
+            status: 404
+        }
+    }
     return {
-        body: recommended.body,
-        status: recommended.err ? 500 : 200,
-        err: recommended.err,
-        ...(recommended.err ? { message: "No Recommended Products Found !" } : {})
+        body: recommended.slice(0,3),
+        status: 200,
     }
 }
 

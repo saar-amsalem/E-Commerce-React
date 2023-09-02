@@ -15,26 +15,21 @@ const updateCart = async(userId,cartToUpdate) => {
         cartToUpdate
     );
     return {
-        body: updatedCart.body,
-        status: updatedCart.err ? 500 : 200,
-        err: updatedCart.err,
-        ...(updatedCart.err ? { message: "Could not Update Cart" } : {})
-    }
+        body: updatedCart,
+        status: 200,
+      }
 }
 
 const deleteCart = async(userId) => {
     const deleteResponse = await cartService.removeByParam({key: "userId", val: userId})
     return {
-        body: deleteResponse.body,
-        status: deleteResponse.err ? 500 : 200,
-        err: deleteResponse.err,
-        ...(deleteResponse.err ? { message: "Could not Delete Cart" } : {})
+        body: deleteResponse,
+        status: 200,
     }
 }
 
 const getCart = async (userId) => {
     const cart = await cartService.getByParam({key: "userId", val: userId})
-    console.log(cart);
     if (!cart) {
         return {
             status: 404
@@ -48,11 +43,14 @@ const getCart = async (userId) => {
 
 const getAllCarts = async() => {
     const carts = await cartService.getAll()
+    if (!carts) {
+        return {
+            status: 404
+        }
+    }
     return {
-        body: carts.body,
-        status: carts.err ? 500 : 200,
-        err: carts.err,
-        ...(carts.err ? { message: "No Cart Found !" } : {})
+        body: carts,
+        status: 200,
     }
 }
 

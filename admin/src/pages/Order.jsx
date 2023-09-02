@@ -7,6 +7,7 @@ import {
   CalendarToday,
   PermIdentity,
 } from "@material-ui/icons";
+import { useSelector } from "react-redux";
 
 const Product = styled.div`
   display: flex;
@@ -130,15 +131,34 @@ export default function User() {
   const [user, setUser] = useState();
   const params = useParams();
   const history = useHistory();
-  const products = store.getState().product.products;
+  const products = useSelector(state => state.product.products);
 
   useEffect(() => {
     const getORD = async () => {
       const res = await getOrderByOrderId(params.orderId);
-      setOrder(res);
-      const useres = await getUserByID(res.userId);
-      setUser(useres);
-      console.log(res);
+      if (res.status === 499) {
+        alert("Invalid token, please try to reconnect !")
+        return
+      }
+      if (res.status === 404) {
+        alert("No user/order found with this ID !")
+        return
+      }
+      if (res.status !== 200) {
+        alert("An unexpected error occured, please try again !")
+        return
+      }
+      setOrder(res.body);
+      const userRes = await getUserByID(res.body.userId);
+      if (res.status === 404) {
+        alert("No user/order found with this ID !")
+        return
+      }
+      if (res.status !== 200) {
+        alert("An unexpected error occured, please try again !")
+        return
+      }
+      setUser(userRes.body);
     };
     getORD();
   }, []);
@@ -148,7 +168,7 @@ export default function User() {
     e.preventDefault();
     history.push("/orders");
   };
-
+  
   return (
     <UserContainer>
       <UserTitleContainer>
@@ -194,12 +214,12 @@ export default function User() {
         <Product key={product._id}>
           <ProductDetail>
             <Image
-              src={products.find((obj) => obj._id === product.productId).img}
+              src={products.find(elm => elm._id === product.productId).img}
             />
             <Details>
               <ProductName>
-                <b>Product:</b>{" "}
-                {products.find((obj) => obj._id === product.productId).title}
+                <b>Product:</b>
+                {products.find(elm => elm._id === product.productId).title}
               </ProductName>
               <ProductId>
                 <b>ID:</b> {product.productId}

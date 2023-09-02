@@ -74,8 +74,16 @@ export default function WidgetSm() {
   useEffect(() => {
     const getUsers = async () => {
       const fiveNewUsersResponse = await getFiveNewUsers();
-      if (fiveNewUsersResponse.err) {
-        alert(fiveNewUsersResponse.message)
+      if (fiveNewUsersResponse.status === 499) {
+        alert("Invalid Token, please try to reconnect !")
+        return
+      }
+      if (fiveNewUsersResponse.status === 404) {
+        alert("no users found !")
+        return
+      }
+      if (fiveNewUsersResponse.status !== 200) {
+        alert("An unexpected error occured, please try again !")
         return
       }
       setUsers(fiveNewUsersResponse.body);

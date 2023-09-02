@@ -61,13 +61,21 @@ export default function FeaturedInfo() {
   useEffect(() => {
     const getIncome = async () => {
       const incomeResponse = await getOrderStats()
-      if (incomeResponse.err) {
-        alert(incomeResponse.message)
+      if (incomeResponse.status === 499) {
+        alert("Invalid Token, please try to reconnect !")
         return
       }
-      console.log(incomeResponse.body);
-      setIncome(incomeResponse.body[1].total);
-      setPerc((incomeResponse.body[1].total) / (incomeResponse.body[0].total || 1));
+      if (incomeResponse.status === 404) {
+        alert("no stats found !")
+        return
+      }
+      if (incomeResponse.status !== 200) {
+        alert("An unexpected error occured, please try again !")
+        return
+      }
+      console.log(incomeResponse);
+      setIncome(incomeResponse.body[incomeResponse.body.length - 1].total);
+      setPerc((incomeResponse.body[incomeResponse.body.length - 1].total * 100) / (incomeResponse.body[incomeResponse.body.length - 2].total || 1) - 100);
     };
     getIncome();
     return () => {}

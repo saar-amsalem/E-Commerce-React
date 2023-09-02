@@ -31,8 +31,16 @@ const OrderList = () => {
     const fetchOrders = async () => {
       console.log("reFetching orders !");
       const res = await getOrders();
-      if (res.err) {
-        alert(res.message)
+      if (res.status === 499) {
+        alert("Invalid Token, please try to reconnect !")
+        return
+      }
+      if (res.status === 404) {
+        alert("no orders found !")
+        return
+      }
+      if (res.status !== 200) {
+        alert("An unexpected error occured, please try again !")
         return
       }
       setOrders(res.body.filter((ord) => ord.status !== "Completed"));

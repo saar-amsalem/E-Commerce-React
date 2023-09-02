@@ -5,8 +5,7 @@ import { mobile } from "../responsive";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { store } from "../redux/store";
-import io from "socket.io-client";
-const socket = io("http://localhost:3030");
+
 
 const Container = styled.div`
   width: 100vw;
@@ -80,12 +79,14 @@ const Login = () => {
       return
     }
     const res = await login(dispatch, { username, password });
+    if (res.status === 401) {
+      setErrMessage("Wrong password/username !")
+      return
+    }
     if (res.status !== 200) {
       setErrMessage("Something Went Wrong !")
       return
     }
-    await getCart(dispatch)
-    socket.emit("display_user", store.getState().user?.currentUser);
   };
   return (
     <Container>

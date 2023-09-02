@@ -56,6 +56,7 @@ const Success = () => {
       const orderCreated = await addOrder({
         userId: currentUser._id,
         products: cart.products.map((item) => ({
+          ...item,
           productId: item._id,
           quantity: item.quantity
         })),
@@ -63,8 +64,14 @@ const Success = () => {
         address: data.billing_details.address,
         status: "processing"
       })
-      if (orderCreated.err) {
-        setErr(orderCreated.message)
+      if (orderCreated.status === 499) {
+        const message = `Your token expired, please try to reconnect !`
+        setErr(message)
+        return
+      }
+      if (orderCreated.status !== 200) {
+        const message = `An unexpected error occured, please try again !`
+        setErr(message)
         return
       }
       setOrderId(orderCreated.body._id);

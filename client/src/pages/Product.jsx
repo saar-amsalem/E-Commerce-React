@@ -136,9 +136,14 @@ const Product = () => {
     const getProduct = async () => {
       const id = location.pathname.split("/")[2];
       const res = await getProductById(id)
-      console.log(res);
-      if (res.err) {
-        alert(res.message)
+      if (res.status === 499) {
+        const message = `Your token expired, please try to reconnect !`
+        alert(message)
+        return
+      }
+      if (res.status !== 200) {
+        const message = `An unexpected error occured, please try again !`
+        alert(message)
         return
       }
       setProduct(res.body);

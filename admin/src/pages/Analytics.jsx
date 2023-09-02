@@ -1,46 +1,66 @@
 import { DataGrid, useGridColumnResize } from "@material-ui/data-grid";
-import { getOnline } from "../redux/apiCalls";
 import { useEffect, useState } from "react";
-import io from "socket.io-client";
+import {Link} from "react-router-dom"
 import styled from "styled-components";
 
 const UserList = styled.div`
   flex: 4;
 `;
 
-// implement here get all online users through the socket ! and the chat !!!
+const ChatButton = styled.button`
+  border: none;
+  border-radius: 10px;
+  padding: 5px 10px;
+  background-color: #3bb077;
+  color: white;
+  cursor: pointer;
+  margin-right: 20px;
+`;
 
-const Analytics = () => {
-  const [data, setData] = useState([]);
+const Analytics = ({socket}) => {
   const [rowData, setRowData] = useState([]);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      const socket = io("http://localhost:3030").emit("admin_conn");
-      socket.on("admin_get", (users) => {
-        console.log(users);
-        setData([...data, users]);
-        data.forEach((obj) => {
-          setRowData([
-            ...rowData,
-            { id: obj._id, username: obj.username, email: obj.email },
-          ]);
-          console.log(rowData);
-        });
+      socket.emit("admin_conn");
+      console.log("emitted admin_conn");
+      socket.on("admin_all_messages", (allMessages) => {
+        console.log(allMessages);
+        if(allMessages.status === 200) {
+          allMessages.body.forEach((obj) => {
+            setRowData(prev => [
+              ...prev,
+              { id: obj._id, message: obj.messages[obj.messages.length - 1] },
+            ])
+          });
+        }
       });
-    }, 1000);
-    return () => clearTimeout(timer);
   }, []);
-  console.log(rowData);
+
+  useEffect(()=> {
+    console.log(rowData);
+  },[rowData])
 
   const columns = [
-    { field: "id", headerName: "ID", width: 200 },
+    { field: "id", headerName: "Username", width: 200 },
     {
-      field: "username",
-      headerName: "User",
+      field: "message",
+      headerName: "Message",
       width: 200,
     },
-    { field: "email", headerName: "Email", width: 200 },
+    {
+      field: "link",
+      headerName: "Chat",
+      width: 150,
+      renderCell: (params) => {
+        return (
+          <>
+            <Link to={"/chat/" + params.row.id}>
+              <ChatButton>Go to chat</ChatButton>
+            </Link>
+          </>
+        );
+      }
+    }
   ];
 
   return (

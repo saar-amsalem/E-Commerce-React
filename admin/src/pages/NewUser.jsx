@@ -58,9 +58,17 @@ export default function NewUser() {
   });
   const history = useHistory();
 
-  const clickHandler = (e) => {
+  const clickHandler = async(e) => {
     e.preventDefault();
-    createUser(user);
+    const res = await createUser(user);
+    if (res.status === 499) {
+      alert("Invalid token, please try to reconnect !")
+      return
+    }
+    if (res.status !== 200) {
+      alert("An unexpected error occured, please try again !")
+      return
+    }
     history.push("/users");
   };
 
